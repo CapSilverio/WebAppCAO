@@ -1,0 +1,145 @@
+/* Estilos específicos para a página de Gerenciar Eletivas */
+
+.eletivas-admin-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr; /* Proporção de 1 para 2 */
+    grid-gap: 20rem; /* Espaçamento entre os cards */
+    align-items: start; /* Alinha os itens no topo */
+}
+
+.grid-item-form, .grid-item-table {
+    height: 100%; /* Ocupa a altura total do espaço do grid */
+}
+
+#eletivas-table th,
+#eletivas-table td {
+    color: #212529; /* Garante um preto suave */
+    vertical-align: middle;
+}
+
+.card-body .form-label {
+    font-weight: 500; /* Deixa os rótulos um pouco mais fortes */
+    color: #ffffff;
+}
+
+.card-body .card-title {
+    color: #ffffff; /* Título do card bem escuro */
+    font-weight: bold;
+}
+
+/* ========== ADMIN ELETIVAS RESPONSIVE DESIGN ========== */
+
+/* Tablet - iPad Portrait */
+@media screen and (max-width: 1024px) {
+    .eletivas-admin-grid {
+        grid-template-columns: 1fr;
+        grid-gap: 2rem;
+    }
+    
+    .grid-item-form {
+        order: 1;
+    }
+    
+    .grid-item-table {
+        order: 2;
+    }
+}
+
+/* Mobile Large */
+@media screen and (max-width: 768px) {
+    .eletivas-admin-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    
+    .grid-item-form, .grid-item-table {
+        width: 100%;
+        height: auto;
+    }
+    
+    /* Formulário mais touch-friendly */
+    .card-body .form-control {
+        padding: 0.6rem 0.8rem;
+        font-size: 1rem;
+        min-height: 44px;
+    }
+    
+    .card-body .btn {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.95rem;
+        min-height: 44px;
+    }
+    
+    /* Tabela responsiva */
+    #eletivas-table {
+        font-size: 0.9rem;
+    }
+    
+    #eletivas-table th,
+    #eletivas-table td {
+        padding: 0.5rem 0.3rem;
+        font-size: 0.85rem;
+    }
+    
+    /* Wrapper para scroll horizontal da tabela */
+    .table-responsive {
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* Mobile Small */
+@media screen and (max-width: 480px) {
+    .eletivas-admin-grid {
+        gap: 1rem;
+    }
+    
+    .card-body {
+        padding: 0.8rem;
+    }
+    
+    .card-body .form-control {
+        padding: 0.5rem 0.6rem;
+        font-size: 0.95rem;
+    }
+    
+    .card-body .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    #eletivas-table {
+        font-size: 0.8rem;
+    }
+    
+    #eletivas-table th,
+    #eletivas-table td {
+        padding: 0.4rem 0.2rem;
+        font-size: 0.75rem;
+    }
+    
+    .card-body .form-label {
+        font-size: 0.9rem;
+    }
+    
+    .card-body .card-title {
+        font-size: 1.1rem;
+    }
+}
+
+/* Mobile Extra Small */
+@media screen and (max-width: 320px) {
+    .card-body {
+        padding: 0.6rem;
+    }
+    
+    #eletivas-table {
+        font-size: 0.75rem;
+    }
+    
+    #eletivas-table th,
+    #eletivas-table td {
+        padding: 0.3rem 0.1rem;
+        font-size: 0.7rem;
+    }
+}

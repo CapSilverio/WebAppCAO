@@ -1,0 +1,179 @@
+/* Estilos para a página de Escolha de Eletivas */
+
+.eletivas-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 5rem; /* Aumentado para maior dispersão */
+}
+
+.eletiva-card {
+    position: relative;
+    background-color: rgba(255, 255, 255, 0.05); /* Estilo glassmorphism */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px; /* Cantos arredondados */
+    padding: 1.5rem; /* Espaçamento interno */
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    backdrop-filter: blur(10px);
+    color: #e9ecef;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.eletiva-card:not(.esgotado):hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 255, 200, 0.1);
+}
+
+.eletiva-card .card-title {
+    font-weight: bold;
+    color: #14F195; /* Cor de destaque verde */
+}
+
+.eletiva-card .card-text {
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+}
+
+.eletiva-card .btn-choose {
+    background: linear-gradient(45deg, #14F195, #00b894);
+    border: none;
+    font-weight: bold;
+    padding: 10px 20px;
+    width: 100%;
+    transition: background 0.3s ease;
+}
+
+.eletiva-card .btn-choose:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+}
+
+.eletiva-card .btn-choose:not(:disabled):hover {
+    background: linear-gradient(45deg, #00b894, #14F195);
+}
+
+/* Estilo para o estado esgotado */
+.eletiva-card.esgotado {
+    background-color: #343a40;
+    opacity: 0.7;
+}
+
+.overlay-esgotado {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2rem;
+    font-weight: bold;
+    border-radius: var(--bs-card-border-radius); /* Usa a variável do Bootstrap */
+    pointer-events: none; /* Permite cliques através se necessário, mas o card estará desabilitado */
+}
+
+/* ========== ELETIVAS RESPONSIVE DESIGN ========== */
+
+/* Tablet - iPad Portrait */
+@media screen and (max-width: 1024px) {
+    .eletivas-cards-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 3rem;
+    }
+    
+    .eletiva-card {
+        padding: 1.2rem;
+    }
+}
+
+/* Mobile Large */
+@media screen and (max-width: 768px) {
+    .eletivas-cards-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 2rem;
+    }
+    
+    .eletiva-card {
+        padding: 1.5rem;
+        border-radius: 12px;
+    }
+    
+    .eletiva-card .card-title {
+        font-size: 1.1rem;
+    }
+    
+    .eletiva-card .card-text {
+        font-size: 1rem;
+        margin-bottom: 1.2rem;
+    }
+    
+    .eletiva-card .btn-choose {
+        padding: 12px 20px;
+        font-size: 1rem;
+        min-height: 44px; /* Touch target mínimo */
+    }
+    
+    .overlay-esgotado {
+        font-size: 1.5rem;
+    }
+}
+
+/* Mobile Small */
+@media screen and (max-width: 480px) {
+    .eletivas-cards-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        padding: 0 0.5rem;
+    }
+    
+    .eletiva-card {
+        padding: 1.2rem;
+        margin: 0;
+    }
+    
+    .eletiva-card .card-title {
+        font-size: 1rem;
+        margin-bottom: 0.8rem;
+    }
+    
+    .eletiva-card .card-text {
+        font-size: 0.95rem;
+        margin-bottom: 1rem;
+    }
+    
+    .eletiva-card .btn-choose {
+        padding: 10px 16px;
+        font-size: 0.9rem;
+    }
+    
+    .overlay-esgotado {
+        font-size: 1.2rem;
+    }
+}
+
+/* Mobile Extra Small */
+@media screen and (max-width: 320px) {
+    .eletivas-cards-grid {
+        gap: 1rem;
+        padding: 0 0.3rem;
+    }
+    
+    .eletiva-card {
+        padding: 1rem;
+    }
+    
+    .eletiva-card .card-title {
+        font-size: 0.95rem;
+    }
+    
+    .eletiva-card .card-text {
+        font-size: 0.9rem;
+    }
+    
+    .eletiva-card .btn-choose {
+        padding: 8px 14px;
+        font-size: 0.85rem;
+    }
+}

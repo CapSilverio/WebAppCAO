@@ -1,0 +1,340 @@
+/* Estilos para a página de administração */
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 3fr; /* Ajuste a proporção das colunas se necessário */
+    grid-gap: 1.2rem;
+    height: calc(100vh - 120px);
+}
+
+.grid-item {
+    width: 100%;
+    /* A altura será definida pelos cards */
+}
+
+#user-list-card {
+    height: 80vh; /* Aumente a altura do card da lista */
+    display: flex;
+    flex-direction: column;
+}
+
+#user-list-container {
+    flex-grow: 1;
+    overflow: hidden; /* Esconde o overflow do container */
+}
+
+.scrollable-list {
+    height: 100%;
+    overflow-y: auto; /* Adiciona a barra de rolagem à lista */
+    /* Oculta a barra de rolagem para navegadores Webkit (Chrome, Safari) */
+    &::-webkit-scrollbar {
+        display: none;
+    }
+    /* Oculta a barra de rolagem para Firefox */
+    scrollbar-width: none;
+    /* Oculta a barra de rolagem para IE/Edge */
+    -ms-overflow-style: none;
+}
+
+#map-card {
+    height: 80vh;
+    width: 150vh; /* Altura do mapa igual à da lista */
+}
+
+#map {
+    height: 100%;
+    border-radius: 10px;
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+#sortable-user-list .list-group-item {
+    background-color: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    color: #a9a9b3;
+    font-size: 0.85rem;
+    padding: 0.6rem 0.5rem;
+    cursor: grab;
+}
+
+#sortable-user-list .list-group-item:active {
+    cursor: grabbing;
+}
+
+#sortable-user-list .sortable-ghost {
+    background-color: rgba(14, 241, 149, 0.2);
+    border: 1px dashed #14F195;
+}
+
+/* ========== ADMIN RESPONSIVE DESIGN ========== */
+
+/* Tablet - iPad Portrait */
+@media screen and (max-width: 1024px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        grid-gap: 1rem;
+        height: auto;
+    }
+    
+    #user-list-card {
+        height: auto;
+        min-height: 400px;
+    }
+    
+    #map-card {
+        height: 60vh;
+        width: auto;
+    }
+}
+
+/* Mobile Large */
+@media screen and (max-width: 768px) {
+    .dashboard-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        height: auto;
+    }
+    
+    .grid-item {
+        width: 100%;
+        height: auto;
+    }
+    
+    #user-list-card {
+        height: auto;
+        min-height: 350px;
+        order: 1;
+    }
+    
+    #map-card {
+        height: 400px;
+        width: 100%;
+        order: 2;
+    }
+    
+    #map {
+        height: 100%;
+        min-height: 350px;
+    }
+    
+    /* Lista de usuários mais touch-friendly */
+    #sortable-user-list .list-group-item {
+        padding: 0.8rem 0.6rem;
+        font-size: 0.9rem;
+        min-height: 44px; /* Touch target mínimo */
+    }
+    
+    .scrollable-list {
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* Mobile Small */
+@media screen and (max-width: 480px) {
+    #user-list-card {
+        min-height: 300px;
+    }
+    
+    #map-card {
+        height: 350px;
+    }
+    
+    #map {
+        min-height: 300px;
+    }
+    
+    #sortable-user-list .list-group-item {
+        padding: 0.6rem 0.4rem;
+        font-size: 0.85rem;
+    }
+}
+
+/* Estilos específicos para navbar admin mobile */
+@media screen and (max-width: 991.98px) {
+    /* Navbar principal com z-index alto */
+    .navbar {
+        z-index: 10000 !important;
+        position: relative !important;
+    }
+    
+    /* Navbar melhorada para admin */
+    .navbar-toggler {
+        border: 2px solid var(--border-color);
+        padding: 0.4rem 0.6rem;
+        border-radius: 8px;
+        background-color: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(5px);
+        z-index: 10001 !important;
+    }
+    
+    .navbar-toggler:focus {
+        box-shadow: 0 0 0 3px rgba(20, 241, 149, 0.3);
+        border-color: var(--secondary-color);
+    }
+    
+    .navbar-toggler-icon {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.8%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    }
+    
+    /* Menu collapse para admin */
+    .navbar-collapse {
+        background-color: rgba(0, 0, 0, 0.95);
+        backdrop-filter: blur(15px);
+        border-radius: 12px;
+        margin-top: 10px;
+        padding: 1rem;
+        border: 1px solid var(--border-color);
+        z-index: 10000 !important;
+        position: absolute !important;
+        top: 100% !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    }
+    
+    /* Links melhorados */
+    .navbar-nav .nav-link {
+        padding: 0.8rem 1rem !important;
+        font-size: 1rem !important;
+        font-weight: 500;
+        border-radius: 8px;
+        margin: 0.2rem 0;
+        min-height: 48px;
+        display: flex;
+        align-items: center;
+        transition: all 0.3s ease;
+    }
+    
+    .navbar-nav .nav-link:hover {
+        background-color: rgba(20, 241, 149, 0.1);
+        color: var(--secondary-color) !important;
+        transform: translateX(5px);
+    }
+    
+    /* Controles admin organizados para mobile */
+    .admin-controls {
+        flex-direction: column !important;
+        width: 100%;
+        gap: 1rem;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-color);
+    }
+    
+    .admin-controls-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        width: 100%;
+    }
+    
+    /* Input token melhorado */
+    #ranking-token-input {
+        width: 100% !important;
+        min-height: 48px;
+        padding: 0.8rem;
+        border-radius: 8px;
+        background-color: rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--border-color);
+        color: var(--text-color);
+        font-size: 1rem;
+    }
+    
+    #ranking-token-input::placeholder {
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    #ranking-token-input:focus {
+        background-color: rgba(255, 255, 255, 0.15);
+        border-color: var(--secondary-color);
+        box-shadow: 0 0 0 3px rgba(20, 241, 149, 0.3);
+    }
+    
+    /* Botões admin melhorados */
+    .admin-controls .btn {
+        min-height: 48px;
+        padding: 0.8rem 1.2rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        border-radius: 8px;
+        flex: 1;
+        white-space: nowrap;
+    }
+    
+    /* Seção do usuário */
+    .admin-user-section {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+        width: 100%;
+        align-items: center;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-color);
+    }
+    
+    .admin-user-section .navbar-text {
+        margin: 0;
+        text-align: center;
+        font-size: 0.95rem;
+    }
+    
+    .admin-user-section .btn {
+        min-height: 48px;
+        padding: 0.8rem 2rem;
+        font-size: 1rem;
+        width: auto;
+    }
+}
+
+/* Mobile específico para admin */
+@media screen and (max-width: 768px) {
+    .admin-controls-group {
+        gap: 0.7rem;
+    }
+    
+    .admin-controls .btn {
+        font-size: 0.85rem;
+        padding: 0.7rem 1rem;
+    }
+    
+    #ranking-token-input {
+        font-size: 0.95rem;
+        padding: 0.7rem;
+    }
+}
+
+/* Landscape Mobile */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+    .dashboard-grid {
+        grid-template-columns: 1fr 1.5fr;
+        grid-gap: 0.8rem;
+        height: calc(100vh - 80px);
+    }
+    
+    #user-list-card {
+        height: calc(100vh - 120px);
+        min-height: auto;
+    }
+    
+    #map-card {
+        height: calc(100vh - 120px);
+    }
+    
+    /* Navbar mais compacta em landscape */
+    .navbar {
+        padding: 0.4rem 0.8rem;
+    }
+    
+    .navbar-collapse {
+        margin-top: 5px;
+        padding: 0.5rem;
+    }
+    
+    .admin-controls {
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+        padding-top: 0.5rem;
+    }
+}

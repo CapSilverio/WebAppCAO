@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESAO - Simulação de Escolha</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+</head>
+<body class="login-page">
+    <canvas id="particles-canvas"></canvas>
+
+    <div class="main-container">
+        <div class="grid-container">
+            <!-- Coluna da Esquerda: Formulário de Pré-Ranking -->
+            <div class="pre-login-card" id="pre-ranking-form-container">
+                <h3>Pré-Classificação</h3>
+                <p>Insira seu nome e nota para ver sua posição.</p>
+                <form id="pre-ranking-form">
+                    <div class="input-group">
+                        <input type="text" id="pre-ranking-name" placeholder="Nome de Guerra" required>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" id="pre-ranking-score" placeholder="Sua Nota Final" required>
+                    </div>
+                    <div class="input-group">
+                        <input type="password" id="pre-ranking-token" placeholder="Token de Acesso" required>
+                    </div>
+                    <button type="submit" class="btn-login">Adicionar à Lista</button>
+                    <div id="pre-ranking-message" class="message"></div>
+                </form>
+            </div>
+
+            <!-- Coluna Central: Login -->
+            <div class="login-container">
+                <div class="login-card">
+                    <h2>Bem-vindo</h2>
+                    <p>Faça o login para iniciar a simulação</p>
+                    
+                    <form id="login-form">
+                        <div class="input-group">
+                            <input type="text" id="login-username-email" placeholder="Usuário ou E-mail" required>
+                        </div>
+                        <div class="input-group">
+                            <input type="password" id="login-password" placeholder="Senha" required>
+                        </div>
+                        <button type="submit" class="btn-login">Entrar</button>
+                        <div id="login-message" class="message"></div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Coluna da Direita: Lista de Classificação -->
+            <div class="pre-login-card" id="pre-ranking-list-container">
+                <h3>Ranking Atual</h3>
+                <div class="ranking-list-scroll">
+                    <ul id="pre-ranking-list">
+                        <!-- A lista será preenchida pelo JavaScript -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="copyright">
+        <p>&copy; 2025 - Desenvolvido por Cap Silvério - C Eng</p>
+    </footer>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/particles.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/pre_login.js') }}"></script>
+</body>
+</html>

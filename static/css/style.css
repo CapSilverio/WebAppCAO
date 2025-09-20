@@ -1,0 +1,720 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+:root {
+    --primary-color: #9945FF;
+    --secondary-color: #14F195;
+    --tertiary-color: #0d6efd; /* Blue for region markers */
+    --background-start: #190033;
+    --background-end: #000B29;
+    --glass-bg: rgba(255, 255, 255, 0.05);
+    --text-color: #E5E5E5;
+    --text-secondary: #a9a9b3;
+    --border-color: rgba(255, 255, 255, 0.2);
+    --input-bg: rgba(0, 0, 0, 0.2);
+    --active-glow: #14F195;
+    --navbar-height: 60px;
+}
+
+html {
+    font-size: 14px; /* Reduz o tamanho base da fonte, afetando unidades rem */
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    color: var(--text-color);
+    background: linear-gradient(45deg, var(--background-start), var(--background-end));
+    background-size: 400% 400%;
+    animation: gradientAnimation 15s ease infinite;
+}
+
+@keyframes gradientAnimation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.main-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.navbar {
+    background-color: var(--glass-bg);
+    border-bottom: 1px solid var(--border-color);
+    backdrop-filter: blur(10px);
+    flex-shrink: 0;
+    height: var(--navbar-height);
+}
+
+.content-container {
+    padding: 1.2rem; /* Padding ajustado */
+    display: flex;
+    gap: 1.2rem; /* Espaçamento ajustado */
+}
+
+.navbar-brand, .navbar-text, .nav-link {
+    color: var(--text-color) !important;
+    font-size: 0.95rem;
+}
+
+.nav-link:hover {
+    color: var(--secondary-color) !important;
+}
+
+.card {
+    background-color: var(--glass-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 15px; /* Raio da borda sutilmente reduzido */
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+}
+
+.card-body {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 1rem; /* Padding padronizado */
+}
+
+.card-title {
+    color: var(--text-color);
+    font-weight: 600;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.6rem;
+    margin-bottom: 0.8rem;
+    font-size: 1.05rem; /* Fonte do título reduzida */
+}
+
+#map-container .card-body {
+    padding: 0.5rem;
+}
+
+#map {
+    flex-grow: 1;
+    border-radius: 10px; /* Borda do mapa ajustada */
+    background-color: var(--input-bg);
+}
+
+.leaflet-popup-content-wrapper, .leaflet-popup-tip {
+    background-color: var(--glass-bg);
+    color: var(--text-color);
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+#user-list-container, #choice-log-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* Touch-friendly scrolling */
+@media (hover: none) and (pointer: coarse) {
+    #user-list, #choice-log {
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+#user-list, #choice-log {
+    overflow-y: auto;
+    flex-grow: 1;
+    height: calc(100% - 40px);
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;  /* Internet Explorer 10+ */
+}
+
+#user-list::-webkit-scrollbar, #choice-log::-webkit-scrollbar {
+    display: none; /* Safari and Chrome */
+}
+
+#user-list .list-group-item {
+    background-color: transparent;
+    border: none;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem; /* Fonte da lista reduzida */
+    padding: 0.6rem 0.5rem; /* Padding ajustado */
+}
+
+#user-list .list-group-item.active {
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    border: none;
+    color: #fff;
+    font-weight: 700;
+}
+
+.classification-badge {
+    font-size: 0.75em; /* Badge ajustado */
+    font-weight: 600;
+    padding: 0.3em 0.6em;
+    border-radius: 5px;
+    background-color: var(--secondary-color);
+    color: #000;
+}
+
+#choice-log .table {
+    color: var(--text-color);
+    font-size: 0.85rem; /* Fonte da tabela reduzida */
+}
+
+#choice-log th, #choice-log td {
+    border-color: var(--border-color);
+    background-color: transparent;
+    padding: 0.5rem; /* Padding da célula reduzido */
+}
+
+#choice-log thead th {
+    color: var(--secondary-color);
+    border-bottom: 2px solid var(--secondary-color);
+    font-size: 0.9rem;
+}
+
+#choice-log .table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(14, 241, 149, 0.05); /* Cor da linha mais sutil */
+}
+
+.btn, .btn-outline-secondary, .btn-danger, .btn-warning {
+    padding: 0.5rem 1rem; /* Padding do botão reduzido */
+    border-radius: 8px; /* Borda do botão ajustada */
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.3s ease;
+    font-size: 0.9rem; /* Fonte do botão reduzida */
+}
+
+.btn-danger {
+     background: linear-gradient(90deg, #FF416C, #FF4B2B);
+     color: white;
+     border: none;
+}
+
+.btn-warning {
+    background: linear-gradient(90deg, #FF8C00, #FFD700);
+    color: white;
+    border: none;
+}
+
+.btn-outline-secondary {
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+}
+
+.btn:hover, .btn-outline-secondary:hover, .btn-danger:hover, .btn-warning:hover {
+    transform: translateY(-2px); /* Efeito de hover mais sutil */
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+#reset-view-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 401;
+    background: var(--glass-bg);
+}
+
+.region-marker {
+    background-color: rgba(13, 110, 253, 0.8);
+    border: 2px solid #fff;
+    border-radius: 50%;
+    color: var(--text-color);
+    text-align: center;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    box-shadow: 0 0 10px rgba(13, 110, 253, 0.7);
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    font-size: 0.8rem; /* Fonte do marcador reduzida */
+}
+
+.region-marker:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 15px rgba(13, 110, 253, 1);
+}
+
+.unit-marker {
+    display: flex;
+    align-items: center;
+}
+
+.unit-marker-pin {
+    width: 28px; /* Tamanho do pino ajustado */
+    height: 28px;
+    border-radius: 50% 50% 50% 0;
+    background: var(--tertiary-color);
+    transform: rotate(-45deg);
+    border: 2px solid #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    color: #fff;
+    font-size: 0.8rem;
+}
+
+.unit-marker-pin-content {
+    transform: rotate(45deg);
+}
+
+.unit-marker-label {
+    margin-left: 8px;
+    font-size: 11px; /* Fonte do rótulo ajustada */
+    font-weight: 700;
+    color: #fff;
+    background-color: rgba(0,0,0,0.7);
+    padding: 2px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+.active-turn {
+    animation: pulse-green 1.5s infinite;
+}
+
+@keyframes pulse-green {
+    0% { box-shadow: 0 0 0 0 rgba(20, 241, 149, 0.7); }
+    70% { box-shadow: 0 0 10px 10px rgba(20, 241, 149, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(20, 241, 149, 0); }
+}
+
+.pulse-animation {
+    animation: pulse-red 1.5s infinite;
+}
+
+@keyframes pulse-red {
+    0% {
+        box-shadow: 0 0 0 0 rgba(237, 0, 0, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 20px rgba(255, 82, 82, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(255, 82, 82, 0);
+    }
+}
+
+.no-vagas {
+    background-color: #808080 !important; /* Cinza */
+    color: #fff;
+}
+
+.choice-notification {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.5);
+    background-color: rgba(0, 0, 0, 0.85);
+    color: white;
+    padding: 30px; /* Padding reduzido */
+    border-radius: 20px;
+    text-align: center;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.5s, transform 0.5s;
+}
+
+.choice-notification.show {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.choice-notification h1 {
+    font-size: 2em; /* Fonte drasticamente reduzida */
+    margin-bottom: 15px;
+    color: var(--secondary-color);
+}
+
+.choice-notification p {
+    font-size: 1.2em; /* Fonte drasticamente reduzida */
+}
+
+.floating-status-banner {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2000;
+    padding: 0.75rem 1.5rem; /* Padding ajustado */
+    border-radius: 12px;
+    font-size: 1rem; /* Fonte reduzida */
+    font-weight: 600;
+    color: #fff;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.4s ease, visibility 0.4s ease, top 0.4s ease;
+}
+
+.floating-status-banner.show {
+    opacity: 1;
+    visibility: visible;
+    top: 80px; /* Posição ajustada */
+}
+
+.floating-status-banner.alert-success {
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+}
+
+.floating-status-banner.alert-warning {
+    background: linear-gradient(90deg, #FF8C00, #FFD700);
+}
+
+.copyright {
+    position: fixed;
+    bottom: 5px; /* Mais próximo da borda */
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.7rem; /* Fonte reduzida */
+    z-index: 10;
+    text-align: center;
+}
+
+/* ========== RESPONSIVE DESIGN ========== */
+
+/* Tablet - iPad Portrait */
+@media screen and (max-width: 1024px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        grid-gap: 1rem;
+        height: auto;
+    }
+    
+    .card {
+        margin-bottom: 1rem;
+    }
+    
+    #map {
+        height: 400px;
+        min-height: 400px;
+    }
+    
+    .navbar {
+        padding: 0.5rem 1rem;
+    }
+    
+    .navbar-nav .nav-link {
+        padding: 0.5rem 0.75rem;
+    }
+}
+
+/* Navbar collapse sempre na frente - Fix global */
+@media screen and (max-width: 991.98px) {
+    .navbar {
+        z-index: 10000 !important;
+        position: relative !important;
+    }
+    
+    .navbar-toggler {
+        z-index: 10001 !important;
+    }
+    
+    .navbar-collapse {
+        z-index: 10000 !important;
+        position: absolute !important;
+        top: 100% !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        background-color: rgba(0, 0, 0, 0.95) !important;
+        backdrop-filter: blur(15px) !important;
+        border-radius: 12px !important;
+        margin-top: 10px !important;
+        padding: 1rem !important;
+        border: 1px solid var(--border-color) !important;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
+    }
+}
+
+/* Mobile Large - iPhone Plus, Galaxy S */
+@media screen and (max-width: 768px) {
+    html {
+        font-size: 16px; /* Aumenta fonte base para mobile */
+    }
+    
+    .content-container {
+        padding: 0.5rem; /* Reduzido para dar mais espaço aos cards */
+        gap: 0.8rem;
+    }
+    
+    .dashboard-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem; /* Reduzido para dar mais espaço vertical */
+        width: 100%;
+        margin: 0;
+    }
+    
+    .card {
+        border-radius: 12px;
+        width: 100%; /* Garante que o card use toda largura disponível */
+        margin: 0; /* Remove qualquer margem */
+        box-sizing: border-box; /* Inclui padding e border no cálculo da largura */
+    }
+    
+    /* Cards específicos do dashboard otimizados para mobile */
+    #user-list-card,
+    #map-card, 
+    #choice-log-card {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: none !important;
+    }
+    
+    .card-body {
+        padding: 0.8rem;
+    }
+    
+    .card-title {
+        font-size: 1.1rem;
+        margin-bottom: 0.8rem;
+    }
+    
+    /* Ajustes para listas em mobile */
+    #user-list .list-group-item {
+        padding: 0.8rem 0.6rem;
+        font-size: 0.9rem;
+    }
+    
+    .classification-badge {
+        font-size: 0.8em;
+        padding: 0.4em 0.7em;
+    }
+    
+    /* Ajustes para tabelas em mobile */
+    #choice-log .table {
+        font-size: 0.8rem;
+    }
+    
+    #choice-log th, #choice-log td {
+        padding: 0.4rem 0.3rem;
+    }
+    
+    /* Ajustes para botões em mobile */
+    .btn {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.95rem;
+        min-height: 44px; /* Touch target mínimo */
+        min-width: 44px;
+    }
+    
+    /* Ajustes para navbar em mobile */
+    .navbar {
+        padding: 0.5rem 0.8rem;
+    }
+    
+    .navbar-brand {
+        font-size: 1.1rem;
+    }
+    
+    .navbar-nav .nav-link {
+        padding: 0.6rem 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    /* Mapa responsivo */
+    #map {
+        height: 350px;
+        min-height: 350px;
+    }
+    
+    /* Marcadores do mapa menores em mobile */
+    .region-marker {
+        font-size: 0.7rem;
+        transform: scale(0.9);
+    }
+    
+    .unit-marker-pin {
+        width: 24px;
+        height: 24px;
+        font-size: 0.7rem;
+    }
+    
+    .unit-marker-label {
+        font-size: 10px;
+        padding: 1px 4px;
+    }
+    
+    /* Notificações ajustadas para mobile */
+    .choice-notification {
+        padding: 20px;
+        border-radius: 15px;
+        margin: 0 10px;
+        max-width: calc(100vw - 20px);
+    }
+    
+    .choice-notification h1 {
+        font-size: 1.5em;
+        margin-bottom: 10px;
+    }
+    
+    .choice-notification p {
+        font-size: 1rem;
+    }
+    
+    /* Banner flutuante ajustado */
+    .floating-status-banner {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.9rem;
+        max-width: calc(100vw - 20px);
+        margin: 0 10px;
+    }
+    
+    .floating-status-banner.show {
+        top: 70px;
+    }
+}
+
+/* Mobile Small - iPhone SE, Galaxy S Mini */
+@media screen and (max-width: 480px) {
+    .content-container {
+        padding: 0.4rem; /* Ainda menos padding para telas pequenas */
+    }
+    
+    .dashboard-grid {
+        gap: 0.6rem; /* Gap menor para telas pequenas */
+    }
+    
+    .card {
+        width: 100% !important;
+        margin: 0 !important;
+    }
+    
+    .card-body {
+        padding: 0.6rem;
+    }
+    
+    /* Cards específicos otimizados para mobile pequeno */
+    #user-list-card {
+        min-height: 250px;
+    }
+    
+    #map-card {
+        min-height: 300px;
+    }
+    
+    #choice-log-card {
+        min-height: 280px;
+    }
+    
+    .card-title {
+        font-size: 1rem;
+    }
+    
+    /* Listas mais compactas */
+    #user-list .list-group-item {
+        padding: 0.6rem 0.4rem;
+        font-size: 0.85rem;
+    }
+    
+    /* Tabelas mais compactas */
+    #choice-log .table {
+        font-size: 0.75rem;
+    }
+    
+    #choice-log th, #choice-log td {
+        padding: 0.3rem 0.2rem;
+    }
+    
+    /* Botões menores */
+    .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    /* Navbar mais compacta */
+    .navbar {
+        padding: 0.3rem 0.5rem;
+    }
+    
+    .navbar-brand {
+        font-size: 1rem;
+    }
+    
+    .navbar-nav .nav-link {
+        padding: 0.4rem 0.3rem;
+        font-size: 0.85rem;
+    }
+    
+    /* Mapa menor */
+    #map {
+        height: 300px;
+        min-height: 300px;
+    }
+    
+    /* Marcadores ainda menores */
+    .region-marker {
+        transform: scale(0.8);
+    }
+    
+    .unit-marker-pin {
+        width: 20px;
+        height: 20px;
+        font-size: 0.6rem;
+    }
+    
+    /* Copyright ajustado */
+    .copyright {
+        font-size: 0.6rem;
+        bottom: 3px;
+    }
+}
+
+/* Mobile Extra Small - iPhone 5/SE */
+@media screen and (max-width: 320px) {
+    html {
+        font-size: 14px;
+    }
+    
+    .content-container {
+        padding: 0.3rem;
+    }
+    
+    .card-body {
+        padding: 0.5rem;
+    }
+    
+    #map {
+        height: 250px;
+        min-height: 250px;
+    }
+    
+    .btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+    }
+}
+
+/* Landscape Mobile */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+    .navbar {
+        padding: 0.2rem 0.5rem;
+    }
+    
+    .content-container {
+        padding: 0.5rem;
+    }
+    
+    #map {
+        height: 250px;
+        min-height: 250px;
+    }
+    
+    .choice-notification {
+        padding: 15px;
+        transform: translate(-50%, -50%) scale(0.8);
+    }
+    
+    .floating-status-banner.show {
+        top: 50px;
+    }
+}

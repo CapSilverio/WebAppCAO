@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login e Registro</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <div class="form-toggle">
+                <button id="login-toggle" class="active">Login</button>
+                <button id="register-toggle">Registro</button>
+            </div>
+
+            <form id="login-form" class="form-box active">
+                <h2>Login</h2>
+                <div class="input-group">
+                    <label for="login-username-email">Usuário ou E-mail</label>
+                    <input type="text" id="login-username-email" name="username_or_email" required>
+                </div>
+                <div class="input-group">
+                    <label for="login-password">Senha</label>
+                    <input type="password" id="login-password" name="password" required>
+                </div>
+                <button type="submit" class="btn">Entrar</button>
+                <div id="login-message" class="message"></div>
+            </form>
+
+            <form id="register-form" class="form-box">
+                <h2>Registro</h2>
+                <div class="input-group">
+                    <label for="register-username">Usuário</label>
+                    <input type="text" id="register-username" name="username" required>
+                </div>
+                <div class="input-group">
+                    <label for="register-email">E-mail</label>
+                    <input type="email" id="register-email" name="email" required>
+                </div>
+                <div class="input-group">
+                    <label for="register-password">Senha</label>
+                    <input type="password" id="register-password" name="password" required>
+                </div>
+                <div class="input-group">
+                    <label for="register-confirm-password">Confirmar Senha</label>
+                    <input type="password" id="register-confirm-password" name="confirm_password" required>
+                </div>
+                <button type="submit" class="btn">Registrar</button>
+                <div id="register-message" class="message"></div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="js/pre_login.js"></script>
+    <script src="js/particles.js"></script>
+</body>
+</html>
