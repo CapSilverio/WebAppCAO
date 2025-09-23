@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'CMN': { lat: -1.4558, lon: -48.5044, name: 'Comando Militar do Norte', unidades: [5, 6] },
         'CMNE': { lat: -8.0578, lon: -34.8829, name: 'Comando Militar do Nordeste', unidades: [7, 8, 9, 10, 11, 12] },
         'CML': { lat: -22.9068, lon: -40.0, name: 'Comando Militar do Leste', unidades: [13, 15, 16, 34, 35, 36] },
-        'CMP': { lat: -14.0, lon: -47.8825, name: 'Comando Militar do Planalto', unidades: [14, 30] },
+        'CMP': { lat: -14.0, lon: -47.8825, name: 'Comando Militar do Planalto', unidades: [14, 30, 39] },
         'CMSE': { lat: -22.9186, lon: -50.3480, name: 'Comando Militar do Sudeste', unidades: [17, 18, 19, 37] },
         'CMS': { lat: -31.8813, lon: -52.8032, name: 'Comando Militar do Sul', unidades: [20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 38] },
         'CMO': { lat: -15.9800, lon: -60.1653, name: 'Comando Militar do Oeste', unidades: [31, 32, 33] }
@@ -117,7 +117,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (newChoices) {
             const lastChoiceClassification = Object.keys(escolhas_feitas).reduce((a, b) => Math.max(a, b));
             const lastChoiceUser = users.find(u => u.classification == lastChoiceClassification);
-            const lastChoiceUnidade = escolhas_feitas[lastChoiceClassification];
+            const lastChoiceData = escolhas_feitas[lastChoiceClassification];
+            const lastChoiceUnidade = typeof lastChoiceData === 'string' ? lastChoiceData : lastChoiceData.unidade_nome;
             showChoiceNotification(lastChoiceUser.username, lastChoiceUnidade);
         }
 
@@ -126,10 +127,21 @@ document.addEventListener('DOMContentLoaded', () => {
         choiceLogBody.innerHTML = '';
         const sortedChoices = Object.entries(escolhas_feitas).sort(([classifA], [classifB]) => classifA - classifB);
 
-        for (const [classif, unidadeNome] of sortedChoices) {
+        for (const [classif, choiceData] of sortedChoices) {
             const user = users.find(u => u.classification == classif);
             const tr = document.createElement('tr');
-            tr.innerHTML = `<td>${user.username}</td><td>${unidadeNome}</td>`;
+
+            // Compatibilidade com formato antigo e novo
+            const unidadeNome = typeof choiceData === 'string' ? choiceData : choiceData.unidade_nome;
+            const segundaOpcao = typeof choiceData === 'object' ? choiceData.segunda_opcao : null;
+
+            const segundaOpcaoDisplay = segundaOpcao ?
+                `<br><small style="color: #14f195; font-style: italic;">2ª: ${segundaOpcao}</small>` : '';
+
+            tr.innerHTML = `
+                <td>${user.username}</td>
+                <td>${unidadeNome}${segundaOpcaoDisplay}</td>
+            `;
             choiceLogBody.appendChild(tr);
         }
 
@@ -220,9 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (isTurn && vagas > 0) {
                 marker.on('click', () => {
-                    if (confirm(`Confirmar escolha pela unidade ${nome} em ${cidade}?`)) {
-                        chooseLocation(id);
-                    }
+                    showChoiceModal(id, nome, cidade);
                 });
             }
             unitMarkers.addLayer(marker);
@@ -253,13 +263,70 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 5000);
     }
 
+    // Variáveis globais para o modal
+    let currentChoiceData = null;
+
+    // Funções do modal de escolha
+    function showChoiceModal(unidadeId, nome, cidade) {
+        currentChoiceData = { unidadeId, nome, cidade };
+
+        const modal = document.getElementById('choice-modal');
+        const firstChoiceDisplay = document.getElementById('first-choice-display');
+        const segundaOpcaoInput = document.getElementById('segunda-opcao-input');
+
+        firstChoiceDisplay.textContent = `${nome} - ${cidade}`;
+        segundaOpcaoInput.value = '';
+
+        modal.style.display = 'block';
+        segundaOpcaoInput.focus();
+    }
+
+    function closeChoiceModal() {
+        const modal = document.getElementById('choice-modal');
+        modal.style.display = 'none';
+        currentChoiceData = null;
+    }
+
+    function confirmChoice() {
+        if (!currentChoiceData) return;
+
+        const segundaOpcao = document.getElementById('segunda-opcao-input').value.trim();
+        chooseLocation(currentChoiceData.unidadeId, segundaOpcao);
+        closeChoiceModal();
+    }
+
+    // Fechar modal ao clicar fora
+    document.addEventListener('click', function(event) {
+        const modal = document.getElementById('choice-modal');
+        if (event.target === modal) {
+            closeChoiceModal();
+        }
+    });
+
+    // Fechar modal com ESC
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeChoiceModal();
+        }
+    });
+
+    // Tornar funções globais para uso no HTML
+    window.showChoiceModal = showChoiceModal;
+    window.closeChoiceModal = closeChoiceModal;
+    window.confirmChoice = confirmChoice;
+
     // Comunicação com o servidor
-    async function chooseLocation(unidadeId) {
+    async function chooseLocation(unidadeId, segundaOpcao = '') {
         try {
+            const requestBody = { unidade_id: unidadeId };
+            if (segundaOpcao) {
+                requestBody.segunda_opcao = segundaOpcao;
+            }
+
             const response = await fetch('/api/choose', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ unidade_id: unidadeId })
+                body: JSON.stringify(requestBody)
             });
             const data = await response.json();
             if (!response.ok) {

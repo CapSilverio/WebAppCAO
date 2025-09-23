@@ -12,16 +12,28 @@ O sistema possui quatro modalidades principais:
 
 ### a. Pré-Classificação (Tela de Login)
 
--   **Ranking Dinâmico:** Antes mesmo de fazer o login, os usuários podem inserir um nome/pseudônimo e uma nota para participar de uma pré-classificação.
--   **Visualização Instantânea:** Uma lista é exibida e atualizada em tempo real, ordenando os participantes pela maior nota.
--   **Validação e Formatação:** O nome é sempre exibido em maiúsculas e a nota é validada para aceitar apenas números (com ponto ou vírgula) e formatada com 3 casas decimais.
--   **Dados Temporários:** As informações deste ranking são armazenadas apenas em memória, sendo reiniciadas junto com o servidor.
+-   **Sistema Dual de Ranking:** O sistema oferece duas modalidades de pré-classificação:
+    -   **Por Nota:** Classificação automática baseada na nota inserida (ordenação decrescente)
+    -   **Por Classificação:** Inserção direta da posição de classificação (1º, 2º, 3º...)
+-   **Interface com Abas:** Navegação fluida entre as duas modalidades através de abas modernas
+-   **Visualização Separada:** Listas independentes para cada tipo de classificação
+-   **Validação Específica:** Validação de notas (números decimais) e posições (números inteiros únicos)
+-   **Formatação Inteligente:** Nomes em maiúsculas, notas com 3 casas decimais
+-   **Persistência de Dados:** As informações são armazenadas no banco de dados SQLite
 
 ### b. Escolha de Unidades Militares em Tempo Real
 
 -   **Login Individual:** Cada aluno possui um login (nome de guerra) e senha.
 -   **Ordem de Escolha:** A escolha é feita em ordem de classificação. O sistema libera o próximo aluno a escolher assim que o anterior finaliza.
+-   **Modal de Confirmação Avançado:** Interface moderna para confirmação de escolha com:
+    -   **1ª Opção:** Unidade selecionada no mapa (automática)
+    -   **2ª Opção:** Campo opcional para estratégia alternativa em caso de mudanças
+    -   **Design Elegante:** Modal com gradientes e animações suaves
 -   **Visualização Dinâmica:** Todos os participantes podem acompanhar em tempo real as escolhas feitas, as vagas restantes e quem é o próximo a escolher.
+-   **Registro de Escolhas Minimalista:** Exibição elegante das escolhas com:
+    -   **Alternância de cores** sutil entre linhas
+    -   **Visualização da 2ª opção** em destaque verde
+    -   **Animações suaves** para novas escolhas
 -   **Interface do Administrador:** Uma visão de "Deus" (god mode) que permite ao administrador acompanhar todo o processo, resetar a simulação, gerenciar usuários, vagas e também **zerar o ranking da pré-classificação**.
 -   **Efeitos Visuais:** O sistema conta com efeitos visuais para facilitar a identificação de informações importantes:
     -   **Pulso Vermelho:** Um efeito de pulso vermelho é exibido ao redor do círculo de um comando militar de área quando resta apenas uma vaga para ser escolhida.
@@ -145,12 +157,47 @@ Para adaptar o sistema para outras armas ou unidades militares:
 - Após editar o código, **delete o arquivo `database.db`** para que as novas unidades sejam criadas
 - O sistema irá recriar automaticamente o banco com os novos dados
 
-## 7. Próximos Passos e Melhorias
+## 7. Funcionalidades Avançadas Recém-Implementadas
 
-Esta seção pode ser usada para documentar as futuras implementações e melhorias planejadas para o projeto.
+### 🎯 Sistema Dual de Pré-Classificação
+- **Duas modalidades** de classificação em interface com abas
+- **Migração automática** do banco de dados preservando dados existentes
+- **Validação específica** para cada tipo de entrada
+- **Interface moderna** com animações e transições suaves
 
--   [ ] Melhorar a interface visual.
--   [ ] Adicionar testes automatizados.
--   [ ] Refatorar o código para melhor escalabilidade.
--   [ ] Adicionar um sistema de notificações em tempo real mais robusto (e.g., WebSockets).
--   [ ] Criar um painel de controle mais completo para o administrador.
+### 🔄 Modal de Confirmação de Escolha com 2ª Opção
+- **Substituição do confirm() tradicional** por modal elegante
+- **Campo opcional para 2ª opção** estratégica
+- **Design responsivo** com gradientes e animações
+- **Validação inteligente** e foco automático nos campos
+
+### 📊 Relatórios e Visualização Aprimorados
+- **Relatórios CSV expandidos** incluindo 2ª opção
+- **Visualização minimalista** no painel administrativo
+- **Alternância sutil de cores** entre registros
+- **Animações de entrada** para novas escolhas
+
+### 🏗️ Arquitetura de Banco Robusta
+- **Sistema de migração automática** para atualizações
+- **Preservação total** de dados existentes
+- **Compatibilidade retroativa** com versões anteriores
+- **Estrutura extensível** para futuras funcionalidades
+
+## 8. Próximos Passos e Melhorias
+
+Esta seção documenta as futuras implementações e melhorias planejadas para o projeto.
+
+### ✅ Recentemente Implementado:
+-   [x] **Interface visual moderna** com componentes minimalistas e elegantes
+-   [x] **Sistema de 2ª opção** para escolhas estratégicas
+-   [x] **Pré-classificação dual** com modalidades por nota e classificação
+-   [x] **Modal avançado** substituindo confirmações simples
+-   [x] **Relatórios expandidos** incluindo novas funcionalidades
+
+### 🔄 Próximas Melhorias:
+-   [ ] Adicionar testes automatizados
+-   [ ] Implementar sistema de backup automático
+-   [ ] Adicionar notificações push em tempo real (WebSockets)
+-   [ ] Criar API REST para integração externa
+-   [ ] Implementar sistema de auditoria completo
+-   [ ] Adicionar suporte a múltiplas sessões simultâneas

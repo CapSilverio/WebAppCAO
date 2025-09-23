@@ -1,3 +1,115 @@
+/* Modal para confirmação de escolha */
+.choice-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+}
+
+.choice-modal-content {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    margin: 10% auto;
+    padding: 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    animation: modalFadeIn 0.3s ease;
+}
+
+@keyframes modalFadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.choice-modal h3 {
+    color: #fff;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-size: 1.3rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding-bottom: 0.8rem;
+}
+
+.choice-option {
+    margin-bottom: 1.2rem;
+}
+
+.choice-option label {
+    display: block;
+    color: #e5e5e5;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.choice-option input[type="text"] {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    font-size: 0.9rem;
+}
+
+.choice-option input[type="text"]:focus {
+    outline: none;
+    border-color: #9945FF;
+    box-shadow: 0 0 0 2px rgba(153, 69, 255, 0.3);
+}
+
+.choice-modal-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.choice-modal-btn {
+    padding: 0.8rem 2rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.choice-modal-btn.cancel {
+    background: rgba(255, 75, 75, 0.2);
+    color: #ff4b4b;
+    border: 1px solid rgba(255, 75, 75, 0.3);
+}
+
+.choice-modal-btn.cancel:hover {
+    background: rgba(255, 75, 75, 0.3);
+}
+
+.choice-modal-btn.confirm {
+    background: rgba(20, 241, 149, 0.2);
+    color: #14f195;
+    border: 1px solid rgba(20, 241, 149, 0.3);
+}
+
+.choice-modal-btn.confirm:hover {
+    background: rgba(20, 241, 149, 0.3);
+}
+
+.first-choice-display {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.8rem;
+    border-radius: 8px;
+    color: #14f195;
+    font-weight: 500;
+    border: 1px solid rgba(20, 241, 149, 0.2);
+}
+
 .dashboard-grid {
     display: grid;
     grid-template-columns: 1fr 5.7fr 1.6fr;
@@ -20,6 +132,83 @@
 #choice-log-container {
     max-height: 615px;
     overflow-y: auto;
+    padding: 0;
+}
+
+/* Estilo minimalista para o registro de escolhas */
+#choice-log .table {
+    margin-bottom: 0;
+    background: transparent;
+}
+
+#choice-log .table thead th {
+    background: rgba(255, 255, 255, 0.05);
+    color: #e5e5e5;
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.8rem;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+#choice-log .table tbody tr {
+    background: rgba(255, 255, 255, 0.02);
+    transition: background-color 0.2s ease;
+}
+
+#choice-log .table tbody tr:nth-child(even) {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+#choice-log .table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.06) !important;
+}
+
+#choice-log .table tbody td {
+    border: none;
+    padding: 0.8rem;
+    color: #e5e5e5;
+    font-weight: 400;
+}
+
+#choice-log .table tbody td:first-child {
+    color: #14f195;
+    font-weight: 500;
+}
+
+/* Animação sutil para novas escolhas */
+#choice-log .table tbody tr.new-choice {
+    background: rgba(20, 241, 149, 0.08) !important;
+    animation: fadeIn 1s ease;
+}
+
+/* Título centralizado com padding superior */
+#choice-log-card .card-title {
+    text-align: center;
+    padding-top: 0.5rem;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Scroll minimalista */
+#choice-log-container::-webkit-scrollbar {
+    width: 4px;
+}
+
+#choice-log-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#choice-log-container::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+}
+
+#choice-log-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
 }
 
 /* Estilos para o banner de status flutuante */

@@ -39,6 +39,7 @@ def get_initial_unidades():
         # CMP
         {'id': 14, 'nome': '2º BFv', 'cidade': 'Araguari-MG', 'lat': -18.6481, 'lon': -48.1879, 'vagas': 0},
         {'id': 30, 'nome': '23ª Cia E Cmb Mec', 'cidade': 'Ipameri-GO', 'lat': -17.7219, 'lon': -48.1597, 'vagas': 0},
+        {'id': 39, 'nome': '1º B O Psc', 'cidade': 'Brasília-DF', 'lat': -15.7900, 'lon': -47.8900, 'vagas':1},
         # CMSE
         {'id': 17, 'nome': '2º BE Cmb', 'cidade': 'Pindamonhangaba-SP', 'lat': -22.9243, 'lon': -45.4666, 'vagas': 0},
         {'id': 18, 'nome': '11ª Cia E Cmb L', 'cidade': 'Pindamonhangaba-SP', 'lat': -22.9418, 'lon': -45.4551, 'vagas': 0},
@@ -61,12 +62,12 @@ def get_initial_unidades():
         {'id': 32, 'nome': '9º BE Cmb', 'cidade': 'Aquidauana-MS', 'lat': -20.4706, 'lon': -55.7875, 'vagas': 0},
         {'id': 33, 'nome': '4ª Cia E Cmb Mec', 'cidade': 'Jardim-MS', 'lat': -21.4803, 'lon': -56.1383, 'vagas': 0}
     ]
-    
+
     total_vagas = 43
     for _ in range(total_vagas):
         unidade_escolhida = random.choice(unidades)
         unidade_escolhida['vagas'] += 1
-        
+
     return unidades
 
 initial_unidades = get_initial_unidades()
@@ -74,6 +75,97 @@ initial_unidades = get_initial_unidades()
 # --- Variáveis de Estado Globais ---
 current_turn = 1
 # --- Database setup ---
+def migrate_pre_ranking_table():
+    """Migra a tabela pre_login_ranking para a nova estrutura"""
+    with sqlite3.connect('database.db') as conn:
+        cursor = conn.cursor()
+
+        # Verificar se a tabela existe
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='pre_login_ranking'")
+        table_exists = cursor.fetchone() is not None
+
+        if table_exists:
+            # Verificar estrutura atual
+            cursor.execute("PRAGMA table_info(pre_login_ranking)")
+            columns = [row[1] for row in cursor.fetchall()]
+
+            if 'ranking_type' not in columns or 'position' not in columns:
+                print("Migrando tabela pre_login_ranking...")
+
+                # Salvar dados existentes
+                cursor.execute("SELECT * FROM pre_login_ranking")
+                existing_data = cursor.fetchall()
+
+                # Recriar tabela
+                cursor.execute("DROP TABLE pre_login_ranking")
+                cursor.execute('''
+                    CREATE TABLE pre_login_ranking (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        name TEXT NOT NULL,
+                        score REAL,
+                        ranking_type TEXT DEFAULT 'score',
+                        position INTEGER
+                    )
+                ''')
+
+                # Restaurar dados como tipo 'score'
+                for row in existing_data:
+                    if len(row) >= 3:
+                        cursor.execute(
+                            "INSERT INTO pre_login_ranking (name, score, ranking_type) VALUES (?, ?, ?)",
+                            (row[1], row[2], 'score')
+                        )
+
+                print(f"Migração concluída! {len(existing_data)} registros preservados.")
+                conn.commit()
+        else:
+            # Criar tabela nova
+            cursor.execute('''
+                CREATE TABLE pre_login_ranking (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL,
+                    score REAL,
+                    ranking_type TEXT DEFAULT 'score',
+                    position INTEGER
+                )
+            ''')
+            conn.commit()
+
+def migrate_escolhas_table():
+    """Migra a tabela escolhas para incluir segunda_opcao"""
+    with sqlite3.connect('database.db') as conn:
+        cursor = conn.cursor()
+
+        # Verificar se a tabela existe
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='escolhas'")
+        table_exists = cursor.fetchone() is not None
+
+        if table_exists:
+            # Verificar se a coluna segunda_opcao já existe
+            cursor.execute("PRAGMA table_info(escolhas)")
+            columns = [row[1] for row in cursor.fetchall()]
+
+            if 'segunda_opcao' not in columns:
+                print("Migrando tabela escolhas para adicionar segunda_opcao...")
+
+                # Adicionar coluna segunda_opcao
+                cursor.execute("ALTER TABLE escolhas ADD COLUMN segunda_opcao TEXT")
+
+                print("Migração da tabela escolhas concluída! Coluna segunda_opcao adicionada.")
+                conn.commit()
+        else:
+            # Criar tabela nova (caso não exista)
+            cursor.execute('''
+                CREATE TABLE escolhas (
+                    classification INTEGER PRIMARY KEY,
+                    unidade_nome TEXT,
+                    unidade_id INTEGER,
+                    segunda_opcao TEXT
+                )
+            ''')
+            print("Tabela escolhas criada com coluna segunda_opcao.")
+            conn.commit()
+
 def init_db():
     db_file = 'database.db'
     # Apaga o DB antigo para garantir que os dados aleatórios sejam aplicados
@@ -91,7 +183,7 @@ def init_db():
                 classification INTEGER
             )
         ''')
-        
+
         cursor.execute("SELECT COUNT(*) FROM users")
         if cursor.fetchone()[0] == 0:
             student_names = [
@@ -114,7 +206,7 @@ def init_db():
                     'INSERT INTO users (username, email, password, classification) VALUES (?, ?, ?, ?)',
                     (username, email, password, classification)
                 )
-            
+
             # Add a read-only user
             username = 'consulta'
             email = 'consulta@example.com'
@@ -150,7 +242,7 @@ def init_db():
                     'INSERT OR IGNORE INTO users (username, email, password, classification) VALUES (?, ?, ?, ?)',
                     (username, email, password, classification)
                 )
-        
+
         # Tabelas de estado da aplicação
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS app_state (
@@ -193,7 +285,7 @@ def init_db():
                 FOREIGN KEY (unidade_id) REFERENCES unidades(id)
             )
         ''')
-        
+
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS pre_login_ranking (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -220,7 +312,7 @@ def load_state_from_db():
     with sqlite3.connect('database.db') as conn:
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
-        
+
         # Carregar turno atual
         cursor.execute("SELECT value FROM app_state WHERE key = 'current_turn'")
         turn_row = cursor.fetchone()
@@ -273,16 +365,19 @@ def api_status():
         with sqlite3.connect('database.db') as conn:
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
-            
+
             cursor.execute("SELECT username, classification FROM users WHERE username NOT IN ('god', 'consulta') ORDER BY classification")
             users = [dict(row) for row in cursor.fetchall()]
 
             cursor.execute("SELECT * FROM unidades")
             unidades = [dict(row) for row in cursor.fetchall()]
 
-            cursor.execute("SELECT classification, unidade_nome FROM escolhas")
+            cursor.execute("SELECT classification, unidade_nome, segunda_opcao FROM escolhas")
             escolhas_rows = cursor.fetchall()
-            escolhas_feitas = {row['classification']: row['unidade_nome'] for row in escolhas_rows}
+            escolhas_feitas = {row['classification']: {
+                'unidade_nome': row['unidade_nome'],
+                'segunda_opcao': row['segunda_opcao']
+            } for row in escolhas_rows}
 
             cursor.execute("SELECT value FROM app_state WHERE key = 'current_turn'")
             turn_row = cursor.fetchone()
@@ -303,6 +398,7 @@ def api_choose():
     if 'loggedin' in session:
         data = request.get_json()
         unidade_id = data.get('unidade_id')
+        segunda_opcao = data.get('segunda_opcao', '')  # Novo parâmetro opcional
         user_classification = session.get('classification')
         is_god = session.get('username') == 'god'
 
@@ -314,7 +410,7 @@ def api_choose():
 
             if not is_god and user_classification != current_turn:
                 return jsonify({'success': False, 'message': 'Não é sua vez de escolher.'}), 400
-            
+
             if session.get('username') == 'consulta':
                 return jsonify({'success': False, 'message': 'Usuário de consulta não pode escolher.'}), 400
 
@@ -327,11 +423,11 @@ def api_choose():
             if unidade['vagas'] <= 0:
                 return jsonify({'success': False, 'message': 'Não há vagas nesta unidade.'}), 400
 
-            # Lógica de escolha
+            # Lógica de escolha com segunda opção
             cursor.execute("UPDATE unidades SET vagas = vagas - 1 WHERE id = ?", (unidade_id,))
             cursor.execute(
-                "INSERT OR REPLACE INTO escolhas (classification, unidade_nome, unidade_id) VALUES (?, ?, ?)",
-                (current_turn, unidade['nome'], unidade['id'])
+                "INSERT OR REPLACE INTO escolhas (classification, unidade_nome, unidade_id, segunda_opcao) VALUES (?, ?, ?, ?)",
+                (current_turn, unidade['nome'], unidade['id'], segunda_opcao if segunda_opcao else None)
             )
             cursor.execute(
                 "UPDATE app_state SET value = value + 1 WHERE key = 'current_turn'"
@@ -359,7 +455,7 @@ def reset_choices():
             cursor = conn.cursor()
             cursor.execute("DELETE FROM escolhas")
             cursor.execute("UPDATE app_state SET value = 1 WHERE key = 'current_turn'")
-            
+
             # Resetar vagas na tabela de unidades
             for u in initial_unidades:
                 cursor.execute("UPDATE unidades SET vagas = ? WHERE id = ?", (u['vagas'], u['id']))
@@ -432,7 +528,7 @@ def save_priorities():
             cursor = conn.cursor()
             # Limpa as prioridades antigas do usuário
             cursor.execute("DELETE FROM user_priorities WHERE user_id = ?", (user_id,))
-            
+
             # Insere as novas prioridades
             for i, unidade_id in enumerate(priority_ids):
                 cursor.execute(
@@ -459,7 +555,7 @@ def get_priorities():
             )
             priorities = [row[0] for row in cursor.fetchall()]
         return jsonify({'priorities': priorities})
-    
+
     return jsonify({'error': 'Unauthorized'}), 401
 
 @app.route('/api/run_allocation', methods=['POST'])
@@ -486,7 +582,7 @@ def run_allocation():
             for p in all_priorities:
                 if p['user_id'] in user_choices:
                     user_choices[p['user_id']].append({'unidade_id': p['unidade_id'], 'priority': p['priority_order']})
-            
+
             # Ordenar as escolhas de cada usuário por prioridade
             for user_id in user_choices:
                 user_choices[user_id].sort(key=lambda x: x['priority'])
@@ -504,14 +600,14 @@ def run_allocation():
                         allocation[user_id] = unidade_id
                         unidades_vagas[unidade_id] -= 1
                         break # Vai para o próximo usuário
-            
+
             # 4. Salvar os resultados no banco de dados
             for user_id, unidade_id in allocation.items():
                 cursor.execute(
                     "INSERT INTO allocation_results (user_id, unidade_id) VALUES (?, ?)",
                     (user_id, unidade_id)
                 )
-            
+
             conn.commit()
 
         return jsonify({'success': True, 'message': 'Alocação executada e resultados salvos com sucesso!'})
@@ -572,63 +668,105 @@ def ranking_token():
 
 @app.route('/pre_login_ranking', methods=['GET', 'POST'])
 def handle_pre_login_ranking():
-    with sqlite3.connect('database.db') as conn:
-        cursor = conn.cursor()
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS pre_login_ranking (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                score REAL NOT NULL
-            )
-        ''')
-        conn.commit()
 
     if request.method == 'POST':
         data = request.get_json()
         name = data.get('name')
-        score_str = data.get('score')
         token = data.get('token')
+        ranking_type = data.get('ranking_type', 'score')  # 'score' ou 'position'
 
         with sqlite3.connect('database.db') as conn:
             cursor = conn.cursor()
             cursor.execute("SELECT value FROM app_state WHERE key = 'ranking_token'")
             token_row = cursor.fetchone()
             correct_token = token_row[0] if token_row else ''
-        
+
         if token != correct_token:
             return jsonify({'success': False, 'message': 'Token inválido.'}), 403
 
-        if not name or not score_str:
-            return jsonify({'success': False, 'message': 'Nome e nota são obrigatórios.'}), 400
+        if not name:
+            return jsonify({'success': False, 'message': 'Nome é obrigatório.'}), 400
 
         name = name.upper()
 
-        try:
-            score_str = str(score_str).replace(',', '.')
-            score = float(score_str)
-        except (ValueError, TypeError):
-            return jsonify({'success': False, 'message': 'Formato de nota inválido. Use apenas números e separador decimal (ponto ou vírgula).'}), 400
+        if ranking_type == 'score':
+            score_str = data.get('score')
+            if not score_str:
+                return jsonify({'success': False, 'message': 'Nota é obrigatória.'}), 400
 
-        with sqlite3.connect('database.db') as conn:
-            cursor = conn.cursor()
-            cursor.execute("INSERT INTO pre_login_ranking (name, score) VALUES (?, ?)", (name, score))
-            conn.commit()
+            try:
+                score_str = str(score_str).replace(',', '.')
+                score = float(score_str)
+            except (ValueError, TypeError):
+                return jsonify({'success': False, 'message': 'Formato de nota inválido. Use apenas números e separador decimal (ponto ou vírgula).'}), 400
 
+            with sqlite3.connect('database.db') as conn:
+                cursor = conn.cursor()
+                cursor.execute("INSERT INTO pre_login_ranking (name, score, ranking_type) VALUES (?, ?, ?)", (name, score, 'score'))
+                conn.commit()
+
+        elif ranking_type == 'position':
+            position_str = data.get('position')
+            if not position_str:
+                return jsonify({'success': False, 'message': 'Classificação é obrigatória.'}), 400
+
+            try:
+                position = int(position_str)
+                if position <= 0:
+                    return jsonify({'success': False, 'message': 'Classificação deve ser um número positivo.'}), 400
+            except (ValueError, TypeError):
+                return jsonify({'success': False, 'message': 'Formato de classificação inválido. Use apenas números inteiros.'}), 400
+
+            # Verificar se a posição já existe
+            with sqlite3.connect('database.db') as conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT COUNT(*) FROM pre_login_ranking WHERE position = ? AND ranking_type = 'position'", (position,))
+                if cursor.fetchone()[0] > 0:
+                    return jsonify({'success': False, 'message': f'Classificação {position} já está ocupada.'}), 400
+
+                cursor.execute("INSERT INTO pre_login_ranking (name, position, ranking_type) VALUES (?, ?, ?)", (name, position, 'position'))
+                conn.commit()
+
+        # Retornar ambos os rankings
         with sqlite3.connect('database.db') as conn:
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
-            cursor.execute("SELECT name, score FROM pre_login_ranking ORDER BY score DESC")
-            ranking = [dict(row) for row in cursor.fetchall()]
 
-        return jsonify({'success': True, 'ranking': ranking})
+            # Ranking por nota
+            cursor.execute("SELECT name, score FROM pre_login_ranking WHERE ranking_type = 'score' ORDER BY score DESC")
+            ranking_score = [dict(row) for row in cursor.fetchall()]
+
+            # Ranking por posição
+            cursor.execute("SELECT name, position FROM pre_login_ranking WHERE ranking_type = 'position' ORDER BY position ASC")
+            ranking_position = [dict(row) for row in cursor.fetchall()]
+
+        return jsonify({'success': True, 'ranking_score': ranking_score, 'ranking_position': ranking_position})
 
     elif request.method == 'GET':
+        ranking_type = request.args.get('type', 'both')  # 'score', 'position', ou 'both'
+
         with sqlite3.connect('database.db') as conn:
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
-            cursor.execute("SELECT name, score FROM pre_login_ranking ORDER BY score DESC")
-            ranking = [dict(row) for row in cursor.fetchall()]
-        return jsonify({'ranking': ranking})
+
+            if ranking_type == 'score':
+                cursor.execute("SELECT name, score FROM pre_login_ranking WHERE ranking_type = 'score' ORDER BY score DESC")
+                ranking = [dict(row) for row in cursor.fetchall()]
+                return jsonify({'ranking': ranking})
+
+            elif ranking_type == 'position':
+                cursor.execute("SELECT name, position FROM pre_login_ranking WHERE ranking_type = 'position' ORDER BY position ASC")
+                ranking = [dict(row) for row in cursor.fetchall()]
+                return jsonify({'ranking': ranking})
+
+            else:  # both
+                cursor.execute("SELECT name, score FROM pre_login_ranking WHERE ranking_type = 'score' ORDER BY score DESC")
+                ranking_score = [dict(row) for row in cursor.fetchall()]
+
+                cursor.execute("SELECT name, position FROM pre_login_ranking WHERE ranking_type = 'position' ORDER BY position ASC")
+                ranking_position = [dict(row) for row in cursor.fetchall()]
+
+                return jsonify({'ranking_score': ranking_score, 'ranking_position': ranking_position})
 
 
 # --- Novas Rotas para o Painel de Admin ---
@@ -651,7 +789,7 @@ def update_ranking():
         with sqlite3.connect('database.db') as conn:
             cursor = conn.cursor()
             for user_data in data:
-                cursor.execute("UPDATE users SET classification = ?, username = ? WHERE id = ?", 
+                cursor.execute("UPDATE users SET classification = ?, username = ? WHERE id = ?",
                                (user_data['rank'], user_data['name'], user_data['id']))
             conn.commit()
         return jsonify({'success': True})
@@ -675,7 +813,7 @@ def update_unit_vacancies(unit_id):
             cursor = conn.cursor()
             cursor.execute("UPDATE unidades SET vagas = ? WHERE id = ?", (new_vacancies, unit_id))
             conn.commit()
-            
+
             conn.row_factory = sqlite3.Row
             cursor.execute("SELECT id, nome as name, lat, lon, vagas as vacancies FROM unidades WHERE id = ?", (unit_id,))
             updated_unit = dict(cursor.fetchone())
@@ -688,38 +826,40 @@ def update_unit_vacancies(unit_id):
 def download_escolhas_report():
     if 'admin_loggedin' not in session:
         return jsonify({'error': 'Unauthorized'}), 401
-    
+
     with sqlite3.connect('database.db') as conn:
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         cursor.execute("""
-            SELECT 
+            SELECT
                 e.classification as ordem,
                 u.username as nome_militar,
-                e.unidade_nome as om_escolhida
+                e.unidade_nome as om_escolhida,
+                e.segunda_opcao
             FROM escolhas e
             JOIN users u ON e.classification = u.classification
             ORDER BY e.classification
         """)
         data = [dict(row) for row in cursor.fetchall()]
-    
+
     if not data:
         return jsonify({'message': 'Nenhuma escolha foi registrada ainda.'}), 404
-    
+
     df = pd.DataFrame(data)
-    
+
     # Renomear colunas para o relatório
     df.rename(columns={
         'ordem': 'Ordem',
-        'nome_militar': 'Nome do Militar', 
-        'om_escolhida': 'OM Escolhida'
+        'nome_militar': 'Nome do Militar',
+        'om_escolhida': 'OM Escolhida',
+        'segunda_opcao': '2ª Opção'
     }, inplace=True)
-    
+
     # Criar um buffer de bytes para o CSV
     output = io.BytesIO()
     df.to_csv(output, index=False, encoding='utf-8-sig', sep=';')
     csv_output = output.getvalue()
-    
+
     response = make_response(csv_output)
     response.headers.set('Content-Disposition', 'attachment', filename='relatorio_escolhas_om.csv')
     response.headers.set('Content-Type', 'text/csv; charset=utf-8')
@@ -736,7 +876,7 @@ def download_eletivas_report():
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         cursor.execute("""
-            SELECT 
+            SELECT
                 ec.ordem,
                 ec.nome_aluno,
                 e.nome_materia
@@ -751,7 +891,7 @@ def download_eletivas_report():
         return jsonify({'message': 'Nenhum dado para exportar.'}), 404
 
     df = pd.DataFrame(data)
-    
+
     # Renomear colunas para o relatório
     df.rename(columns={
         'ordem': 'Ordem',
@@ -780,7 +920,7 @@ def admin_eletivas():
 def get_eletivas():
     if 'admin_loggedin' not in session:
         return jsonify({'error': 'Unauthorized'}), 401
-    
+
     with sqlite3.connect('database.db') as conn:
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
@@ -792,7 +932,7 @@ def get_eletivas():
 def add_eletiva():
     if 'admin_loggedin' not in session:
         return jsonify({'success': False, 'message': 'Unauthorized'}), 401
-    
+
     data = request.get_json()
     nome_materia = data.get('nome_materia')
     vagas = data.get('vagas')
@@ -815,7 +955,7 @@ def add_eletiva():
 def edit_eletiva(id):
     if 'admin_loggedin' not in session:
         return jsonify({'success': False, 'message': 'Unauthorized'}), 401
-        
+
     data = request.get_json()
     nome_materia = data.get('nome_materia')
     vagas = data.get('vagas')
@@ -857,7 +997,7 @@ def get_initial_eletivas():
 def reset_eletivas_choices():
     if 'admin_loggedin' not in session:
         return jsonify({'success': False, 'message': 'Unauthorized'}), 401
-    
+
     try:
         with sqlite3.connect('database.db') as conn:
             cursor = conn.cursor()
@@ -938,7 +1078,7 @@ def choose_eletiva():
             turn_row = cursor.fetchone()
             if not turn_row:
                 return jsonify({'success': False, 'message': 'A escolha de eletivas já foi finalizada.'}), 400
-            
+
             current_turn_user = dict(turn_row)
             if current_turn_user['nome_aluno'] != username_session:
                 return jsonify({'success': False, 'message': 'Não é sua vez de escolher.'}), 403
@@ -952,7 +1092,7 @@ def choose_eletiva():
             eletiva_row = cursor.fetchone()
             if not eletiva_row:
                 return jsonify({'success': False, 'message': 'Matéria eletiva não encontrada.'}), 404
-            
+
             eletiva = dict(eletiva_row)
             if eletiva['vagas'] <= 0:
                 return jsonify({'success': False, 'message': 'Não há mais vagas para esta matéria.'}), 400
@@ -965,7 +1105,7 @@ def choose_eletiva():
             # Registra a escolha
             cursor.execute("INSERT INTO eletivas_escolhas (id_aluno_classificacao, id_eletiva) VALUES (?, ?)",
                            (current_turn_user['id'], eletiva_id))
-            
+
             conn.commit()
             # --- Fim da Transação ---
 
@@ -1038,7 +1178,7 @@ def init_eletivas_db():
                     "INSERT INTO eletivas_classificacao (nome_aluno, ordem) VALUES (?, ?)",
                     (nome, i + 1)
                 )
-        
+
         conn.commit()
 
 if __name__ == '__main__':
@@ -1046,5 +1186,10 @@ if __name__ == '__main__':
     if not os.path.exists(db_file):
         init_db()
     init_eletivas_db() # Adiciona e popula as tabelas de eletivas
+    migrate_pre_ranking_table()  # Migrar tabela de pré-ranking
+    migrate_escolhas_table()  # Migrar tabela de escolhas para segunda opção
     load_state_from_db()
-    app.run(debug=True)
+
+    # Configuração para desenvolvimento
+    app.run(host='127.0.0.1', port=5000, debug=True)
+

@@ -14,20 +14,48 @@
             <!-- Coluna da Esquerda: Formulário de Pré-Ranking -->
             <div class="pre-login-card" id="pre-ranking-form-container">
                 <h3>Pré-Classificação</h3>
-                <p>Insira seu nome e nota para ver sua posição.</p>
-                <form id="pre-ranking-form">
-                    <div class="input-group">
-                        <input type="text" id="pre-ranking-name" placeholder="Nome de Guerra" required>
-                    </div>
-                    <div class="input-group">
-                        <input type="text" id="pre-ranking-score" placeholder="Sua Nota Final" required>
-                    </div>
-                    <div class="input-group">
-                        <input type="password" id="pre-ranking-token" placeholder="Token de Acesso" required>
-                    </div>
-                    <button type="submit" class="btn-login">Adicionar à Lista</button>
-                    <div id="pre-ranking-message" class="message"></div>
-                </form>
+
+                <!-- Abas do Formulário -->
+                <div class="tab-navigation">
+                    <button class="tab-btn active" data-tab="score-form">Por Nota</button>
+                    <button class="tab-btn" data-tab="position-form">Por Classificação</button>
+                </div>
+
+                <!-- Formulário Por Nota -->
+                <div class="tab-content active" id="score-form">
+                    <p>Insira seu nome e nota para ver sua posição.</p>
+                    <form id="pre-ranking-score-form">
+                        <div class="input-group">
+                            <input type="text" id="pre-ranking-name-score" placeholder="Nome de Guerra" required>
+                        </div>
+                        <div class="input-group">
+                            <input type="text" id="pre-ranking-score" placeholder="Sua Nota Final" required>
+                        </div>
+                        <div class="input-group">
+                            <input type="password" id="pre-ranking-token-score" placeholder="Token de Acesso" required>
+                        </div>
+                        <button type="submit" class="btn-login">Adicionar à Lista</button>
+                        <div id="pre-ranking-score-message" class="message"></div>
+                    </form>
+                </div>
+
+                <!-- Formulário Por Classificação -->
+                <div class="tab-content" id="position-form">
+                    <p>Insira seu nome e classificação direta.</p>
+                    <form id="pre-ranking-position-form">
+                        <div class="input-group">
+                            <input type="text" id="pre-ranking-name-position" placeholder="Nome de Guerra" required>
+                        </div>
+                        <div class="input-group">
+                            <input type="number" id="pre-ranking-position" placeholder="Sua Classificação (ex: 1, 2, 3...)" min="1" required>
+                        </div>
+                        <div class="input-group">
+                            <input type="password" id="pre-ranking-token-position" placeholder="Token de Acesso" required>
+                        </div>
+                        <button type="submit" class="btn-login">Adicionar à Lista</button>
+                        <div id="pre-ranking-position-message" class="message"></div>
+                    </form>
+                </div>
             </div>
 
             <!-- Coluna Central: Login -->
@@ -52,10 +80,29 @@
             <!-- Coluna da Direita: Lista de Classificação -->
             <div class="pre-login-card" id="pre-ranking-list-container">
                 <h3>Ranking Atual</h3>
-                <div class="ranking-list-scroll">
-                    <ul id="pre-ranking-list">
-                        <!-- A lista será preenchida pelo JavaScript -->
-                    </ul>
+
+                <!-- Abas da Visualização -->
+                <div class="tab-navigation">
+                    <button class="tab-btn active" data-tab="score-list">Por Nota</button>
+                    <button class="tab-btn" data-tab="position-list">Por Classificação</button>
+                </div>
+
+                <!-- Lista Por Nota -->
+                <div class="tab-content active" id="score-list">
+                    <div class="ranking-list-scroll">
+                        <ul id="pre-ranking-score-list">
+                            <!-- A lista será preenchida pelo JavaScript -->
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Lista Por Classificação -->
+                <div class="tab-content" id="position-list">
+                    <div class="ranking-list-scroll">
+                        <ul id="pre-ranking-position-list">
+                            <!-- A lista será preenchida pelo JavaScript -->
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>

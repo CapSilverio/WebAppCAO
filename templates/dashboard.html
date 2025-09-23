@@ -68,7 +68,7 @@
                             <thead>
                                 <tr>
                                     <th>Militar</th>
-                                    <th>OM Escolhida</th>
+                                    <th>OM Escolhida / 2ª Opção</th>
                                 </tr>
                             </thead>
                             <tbody id="choice-log-body"></tbody>
@@ -89,5 +89,28 @@
     <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
     <script src="{{ url_for('static', filename='js/particles.js') }}"></script>
     <audio id="notification-sound" src="{{ url_for('static', filename='sounds/notification.mp3') }}" preload="auto"></audio>
+
+    <!-- Modal para confirmação de escolha -->
+    <div id="choice-modal" class="choice-modal">
+        <div class="choice-modal-content">
+            <h3>Confirmar Escolha de Unidade</h3>
+
+            <div class="choice-option">
+                <label>1ª Opção:</label>
+                <div id="first-choice-display" class="first-choice-display"></div>
+            </div>
+
+            <div class="choice-option">
+                <label>2ª Opção (opcional):</label>
+                <input type="text" id="segunda-opcao-input" placeholder="Ex: 3º BECmb - Brasília-DF" maxlength="100">
+            </div>
+
+            <div class="choice-modal-buttons">
+                <button type="button" class="choice-modal-btn cancel" onclick="closeChoiceModal()">Cancelar</button>
+                <button type="button" class="choice-modal-btn confirm" onclick="confirmChoice()">Confirmar Escolha</button>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
