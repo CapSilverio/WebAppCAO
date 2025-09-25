@@ -18,6 +18,71 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeCommandName = null;
     let statusBanner = null; // Será criado dinamicamente
 
+    // Mapeamento de IDs das unidades para logos
+    const unitLogoMapping = {
+        1: '7bec.png',          // 7º BEC
+        2: '5bec.png',          // 5º BEC
+        3: '6bec.png',          // 6º BEC
+        5: '8bec.png',          // 8º BEC
+        7: '2bec.png',          // 2º BEC
+        8: '3bec.png',          // 3º BEC
+        9: '1bec.png',          // 1º BEC
+        12: '4bec.png',         // 4º BEC
+        14: '2bfv.png',         // 2º BFv
+        16: '1becmb.png',       // 1º BE Cmb
+        17: '2becmb.png',       // 2º BE Cmb
+        21: '5becmbbld.png',    // 5º BE Cmb Bld
+        22: '1bfv.png',         // 1º BFv
+        24: '1ciaecmbmec.png',  // 1ª Cia E Cmb Mec
+        26: '12becmbbld.png',   // 12º BE Cmb Bld
+        27: '3becmb.png',       // 3º BE Cmb
+        29: '6becmb.png',       // 6º BE Cmb
+        30: '23ciaecmb.png',    // 23ª Cia E Cmb   
+        31: '9bec.png',         // 9º BEC
+        32: '9becmb.png',       // 9º BE Cmb
+        33: '4ciaecmbmec.png',  // 4ª Cia E Cmb Mec
+        34: 'esa.png',          // EsSA
+        35: 'esa.png',          // EsAO 
+        36: 'aman.png',         // AMAN
+        37: 'ciavex.png',       // CIAvEx
+        38: '23ciaecmb.png',    // 8ª Cia E Cmb
+        39: '1boppsc.png',      // 1º B O Psc
+        40: '1bavex.png'        // 1º B Av Ex
+    };
+
+    // Função para obter logo da unidade
+    function getUnitLogo(unitId) {
+        const logoFilename = unitLogoMapping[unitId];
+        return logoFilename ? `/static/images/${logoFilename}` : null;
+    }
+
+    // Precarregar todas as logos em background para cache
+    function preloadLogos() {
+        console.log('🎖️ Precarregando logos das unidades...');
+        const logos = Object.values(unitLogoMapping);
+        let loadedCount = 0;
+
+        logos.forEach((logoFile, index) => {
+            const img = new Image();
+            img.onload = () => {
+                loadedCount++;
+                if (loadedCount === logos.length) {
+                    console.log(`✅ ${loadedCount} logos carregadas com sucesso!`);
+                }
+            };
+            img.onerror = () => {
+                console.warn(`⚠️ Erro ao carregar: ${logoFile}`);
+                loadedCount++;
+            };
+            img.src = `/static/images/${logoFile}`;
+
+            // Pequeno delay entre cada carregamento para não sobrecarregar
+            setTimeout(() => {
+                // Imagem já foi disparada acima
+            }, index * 50);
+        });
+    }
+
     // Dados estáticos dos comandos militares
     const militaryCommands = {
         'CMA': { lat: -3.4653, lon: -62.2159, name: 'Comando Militar da Amazônia', unidades: [1, 2, 3, 4] },
@@ -25,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'CMNE': { lat: -8.0578, lon: -34.8829, name: 'Comando Militar do Nordeste', unidades: [7, 8, 9, 10, 11, 12] },
         'CML': { lat: -22.9068, lon: -40.0, name: 'Comando Militar do Leste', unidades: [13, 15, 16, 34, 35, 36] },
         'CMP': { lat: -14.0, lon: -47.8825, name: 'Comando Militar do Planalto', unidades: [14, 30, 39] },
-        'CMSE': { lat: -22.9186, lon: -50.3480, name: 'Comando Militar do Sudeste', unidades: [17, 18, 19, 37] },
+        'CMSE': { lat: -22.9186, lon: -50.3480, name: 'Comando Militar do Sudeste', unidades: [17, 18, 19, 37, 40] },
         'CMS': { lat: -31.8813, lon: -52.8032, name: 'Comando Militar do Sul', unidades: [20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 38] },
         'CMO': { lat: -15.9800, lon: -60.1653, name: 'Comando Militar do Oeste', unidades: [31, 32, 33] }
     };
@@ -141,7 +206,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const lastChoiceUser = users.find(u => u.classification == lastChoiceClassification);
             const lastChoiceData = escolhas_feitas[lastChoiceClassification];
             const lastChoiceUnidade = typeof lastChoiceData === 'string' ? lastChoiceData : lastChoiceData.unidade_nome;
-            showChoiceNotification(lastChoiceUser.username, lastChoiceUnidade);
+            const lastChoiceUnidadeId = typeof lastChoiceData === 'string' ? null : lastChoiceData.unidade_id;
+            showChoiceNotification(lastChoiceUser.username, lastChoiceUnidade, lastChoiceUnidadeId);
         }
 
         lastChoiceCount = choiceCount;
@@ -298,10 +364,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function showChoiceNotification(username, unidade) {
+    function showChoiceNotification(username, unidade, unidadeId) {
         const notification = document.createElement('div');
         notification.className = 'choice-notification';
-        notification.innerHTML = `<h1>Parabéns ${username}!</h1><p>Você escolheu a unidade ${unidade}.</p>`;
+
+        // Buscar logo da unidade
+        const logoPath = getUnitLogo(unidadeId);
+
+        const logoHtml = logoPath ?
+            `<div class="choice-logo"><img src="${logoPath}" alt="Logo ${unidade}" class="unit-logo"></div>` :
+            '';
+
+        notification.innerHTML = `
+            ${logoHtml}
+            <h1>Parabéns ${username}!</h1>
+            <p>Você escolheu a unidade ${unidade}.</p>
+        `;
         document.body.appendChild(notification);
 
         setTimeout(() => {
@@ -482,6 +560,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Inicialização
     initializeMap();
     // initializeHeatmap();
+
+    // Precarregar logos das unidades para melhor performance
+    preloadLogos();
+
     fetchData(); // Carga inicial
     setInterval(fetchData, 3000); // Atualização periódica
 });

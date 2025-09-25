@@ -44,7 +44,8 @@ def get_initial_unidades():
         {'id': 17, 'nome': '2º BE Cmb', 'cidade': 'Pindamonhangaba-SP', 'lat': -22.9243, 'lon': -45.4666, 'vagas': 0},
         {'id': 18, 'nome': '11ª Cia E Cmb L', 'cidade': 'Pindamonhangaba-SP', 'lat': -22.9418, 'lon': -45.4551, 'vagas': 0},
         {'id': 19, 'nome': 'Cia E Amv', 'cidade': 'Pindamonhangaba-SP', 'lat': -22.9412, 'lon': -45.4538, 'vagas': 0},
-        {'id': 37, 'nome': 'CAVEx', 'cidade': 'Taubaté-SP', 'lat': -23.0447, 'lon': -45.5266, 'vagas':2},
+        {'id': 37, 'nome': 'CIAvEx', 'cidade': 'Taubaté-SP', 'lat': -23.0447, 'lon': -45.5266, 'vagas':1},
+        {'id': 40, 'nome': '1º B Av Ex', 'cidade': 'Taubaté-SP', 'lat': -22.988, 'lon': -45.557, 'vagas':1},
         # CMS
         {'id': 20, 'nome': '15ª Cia E Cmb Mec', 'cidade': 'Palmas-PR', 'lat': -26.4842, 'lon': -51.9919, 'vagas': 0},
         {'id': 21, 'nome': '5º BE Cmb Bld', 'cidade': 'Porto União-SC', 'lat': -26.2397, 'lon': -51.0788, 'vagas': 0},
@@ -372,9 +373,12 @@ def api_status():
             cursor.execute("SELECT * FROM unidades")
             unidades = [dict(row) for row in cursor.fetchall()]
 
-            cursor.execute("SELECT classification, unidade_nome FROM escolhas")
+            cursor.execute("SELECT classification, unidade_nome, unidade_id FROM escolhas")
             escolhas_rows = cursor.fetchall()
-            escolhas_feitas = {row['classification']: row['unidade_nome'] for row in escolhas_rows}
+            escolhas_feitas = {row['classification']: {
+                'unidade_nome': row['unidade_nome'],
+                'unidade_id': row['unidade_id']
+            } for row in escolhas_rows}
 
             cursor.execute("SELECT value FROM app_state WHERE key = 'current_turn'")
             turn_row = cursor.fetchone()
@@ -447,17 +451,26 @@ def admin_dashboard():
 @app.route('/api/reset_choices', methods=['POST'])
 def reset_choices():
     if 'admin_loggedin' in session:
+        # Estado atual das vagas que deve ser restaurado sempre
+        vagas_padrao = {
+            1: 2, 2: 1, 3: 2, 4: 0, 5: 1, 6: 0, 7: 3, 8: 4, 9: 2, 10: 0,
+            11: 0, 12: 2, 13: 0, 14: 1, 15: 0, 16: 1, 17: 1, 18: 0, 19: 0, 20: 0,
+            21: 4, 22: 1, 23: 0, 24: 1, 25: 0, 26: 2, 27: 2, 28: 0, 29: 1, 30: 1,
+            31: 2, 32: 2, 33: 1, 34: 2, 35: 0, 36: 1, 37: 1, 38: 0, 39: 1, 40: 1
+        }
+
         with sqlite3.connect('database.db') as conn:
             cursor = conn.cursor()
             cursor.execute("DELETE FROM escolhas")
             cursor.execute("UPDATE app_state SET value = 1 WHERE key = 'current_turn'")
 
-            # Resetar vagas na tabela de unidades
-            for u in initial_unidades:
-                cursor.execute("UPDATE unidades SET vagas = ? WHERE id = ?", (u['vagas'], u['id']))
+            # Restaurar vagas para o estado atual configurado
+            for unidade_id, vagas in vagas_padrao.items():
+                cursor.execute("UPDATE unidades SET vagas = ? WHERE id = ?", (vagas, unidade_id))
+
             conn.commit()
 
-        return jsonify({'success': True, 'message': 'Registros de escolhas zerados com sucesso!'})
+        return jsonify({'success': True, 'message': 'Registros de escolhas zerados e vagas restauradas com sucesso!'})
     return jsonify({'success': False, 'message': 'Unauthorized'}), 401
 
 @app.route('/api/reset_pre_login_ranking', methods=['POST'])

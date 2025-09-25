@@ -476,6 +476,18 @@ body {
     font-size: 1.2em; /* Fonte drasticamente reduzida */
 }
 
+.choice-logo {
+    margin-bottom: 20px;
+}
+
+.choice-logo .unit-logo {
+    width: 180px;
+    height: 180px;
+    object-fit: contain;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
 .floating-status-banner {
     position: fixed;
     top: 20px;
@@ -1042,6 +1054,11 @@ body {
         border-radius: 15px;
         margin: 0 10px;
         max-width: calc(100vw - 20px);
+    }
+
+    .choice-logo .unit-logo {
+        width: 90px;
+        height: 90px;
     }
     
     .choice-notification h1 {
