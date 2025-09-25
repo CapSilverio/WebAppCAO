@@ -372,12 +372,9 @@ def api_status():
             cursor.execute("SELECT * FROM unidades")
             unidades = [dict(row) for row in cursor.fetchall()]
 
-            cursor.execute("SELECT classification, unidade_nome, segunda_opcao FROM escolhas")
+            cursor.execute("SELECT classification, unidade_nome FROM escolhas")
             escolhas_rows = cursor.fetchall()
-            escolhas_feitas = {row['classification']: {
-                'unidade_nome': row['unidade_nome'],
-                'segunda_opcao': row['segunda_opcao']
-            } for row in escolhas_rows}
+            escolhas_feitas = {row['classification']: row['unidade_nome'] for row in escolhas_rows}
 
             cursor.execute("SELECT value FROM app_state WHERE key = 'current_turn'")
             turn_row = cursor.fetchone()
@@ -398,7 +395,6 @@ def api_choose():
     if 'loggedin' in session:
         data = request.get_json()
         unidade_id = data.get('unidade_id')
-        segunda_opcao = data.get('segunda_opcao', '')  # Novo parâmetro opcional
         user_classification = session.get('classification')
         is_god = session.get('username') == 'god'
 
@@ -423,11 +419,11 @@ def api_choose():
             if unidade['vagas'] <= 0:
                 return jsonify({'success': False, 'message': 'Não há vagas nesta unidade.'}), 400
 
-            # Lógica de escolha com segunda opção
+            # Lógica de escolha
             cursor.execute("UPDATE unidades SET vagas = vagas - 1 WHERE id = ?", (unidade_id,))
             cursor.execute(
-                "INSERT OR REPLACE INTO escolhas (classification, unidade_nome, unidade_id, segunda_opcao) VALUES (?, ?, ?, ?)",
-                (current_turn, unidade['nome'], unidade['id'], segunda_opcao if segunda_opcao else None)
+                "INSERT OR REPLACE INTO escolhas (classification, unidade_nome, unidade_id) VALUES (?, ?, ?)",
+                (current_turn, unidade['nome'], unidade['id'])
             )
             cursor.execute(
                 "UPDATE app_state SET value = value + 1 WHERE key = 'current_turn'"
@@ -834,8 +830,7 @@ def download_escolhas_report():
             SELECT
                 e.classification as ordem,
                 u.username as nome_militar,
-                e.unidade_nome as om_escolhida,
-                e.segunda_opcao
+                e.unidade_nome as om_escolhida
             FROM escolhas e
             JOIN users u ON e.classification = u.classification
             ORDER BY e.classification
@@ -851,8 +846,7 @@ def download_escolhas_report():
     df.rename(columns={
         'ordem': 'Ordem',
         'nome_militar': 'Nome do Militar',
-        'om_escolhida': 'OM Escolhida',
-        'segunda_opcao': '2ª Opção'
+        'om_escolhida': 'OM Escolhida'
     }, inplace=True)
 
     # Criar um buffer de bytes para o CSV

@@ -244,37 +244,175 @@ body {
 
 .unit-marker {
     display: flex;
+    flex-direction: column;
     align-items: center;
+    position: relative;
+}
+
+.unit-marker-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
 }
 
 .unit-marker-pin {
-    width: 28px; /* Tamanho do pino ajustado */
-    height: 28px;
+    width: 36px;
+    height: 36px;
     border-radius: 50% 50% 50% 0;
-    background: var(--tertiary-color);
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
     transform: rotate(-45deg);
-    border: 2px solid #fff;
+    border: 3px solid #fff;
     display: flex;
     justify-content: center;
     align-items: center;
     font-weight: bold;
     color: #fff;
-    font-size: 0.8rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(153, 69, 255, 0.4),
+                0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.unit-marker-pin:hover {
+    transform: rotate(-45deg) scale(1.15);
+    box-shadow: 0 6px 20px rgba(153, 69, 255, 0.6),
+                0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+.unit-marker-pin:before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    border-radius: 50% 50% 50% 0;
+    background: linear-gradient(135deg, rgba(153, 69, 255, 0.3) 0%, rgba(20, 241, 149, 0.3) 100%);
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.unit-marker-pin:hover:before {
+    opacity: 1;
 }
 
 .unit-marker-pin-content {
     transform: rotate(45deg);
+    font-weight: 900;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .unit-marker-label {
-    margin-left: 8px;
-    font-size: 11px; /* Fonte do rótulo ajustada */
+    margin-top: 8px;
+    font-size: 12px;
     font-weight: 700;
     color: #fff;
-    background-color: rgba(0,0,0,0.7);
-    padding: 2px 6px;
-    border-radius: 4px;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.9) 100%);
+    padding: 4px 8px;
+    border-radius: 6px;
     white-space: nowrap;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(5px);
+    position: relative;
+    text-align: center;
+    min-width: 80px;
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: all 0.3s ease;
+    cursor: default;
+}
+
+.unit-marker-label:before {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-bottom: 4px solid rgba(0, 0, 0, 0.8);
+}
+
+.unit-marker:hover .unit-marker-label {
+    background: linear-gradient(135deg, rgba(153, 69, 255, 0.9) 0%, rgba(20, 241, 149, 0.9) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(153, 69, 255, 0.4);
+}
+
+.unit-marker:hover .unit-marker-label:before {
+    border-bottom-color: rgba(153, 69, 255, 0.9);
+}
+
+/* Tooltip para unidades */
+.unit-marker-tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(20, 20, 20, 0.95) 100%);
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    border: 1px solid rgba(153, 69, 255, 0.5);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    margin-bottom: 5px;
+}
+
+.unit-marker-tooltip:before {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid rgba(0, 0, 0, 0.95);
+}
+
+.unit-marker-label:hover .unit-marker-tooltip {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(-3px);
+}
+
+/* Estados das vagas para marcadores de unidade */
+.unit-marker-pin.poucas-vagas {
+    background: linear-gradient(135deg, #FF8C00 0%, #FFD700 100%);
+    animation: pulse-orange 2s infinite;
+}
+
+.unit-marker-pin.muitas-vagas {
+    background: linear-gradient(135deg, #32CD32 0%, #00FF7F 100%);
+}
+
+@keyframes pulse-orange {
+    0%, 100% {
+        box-shadow: 0 4px 12px rgba(255, 140, 0, 0.4),
+                    0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    50% {
+        box-shadow: 0 6px 20px rgba(255, 140, 0, 0.7),
+                    0 4px 8px rgba(0, 0, 0, 0.4);
+    }
 }
 
 .active-turn {
@@ -368,6 +506,242 @@ body {
     background: linear-gradient(90deg, #FF8C00, #FFD700);
 }
 
+.floating-status-banner.alert-info {
+    background: linear-gradient(90deg, #17a2b8, #20c997);
+}
+
+/* ========== TELA FINAL DE CELEBRAÇÃO ========== */
+
+.final-celebration-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(135deg, var(--background-start), var(--background-end));
+    z-index: 10000;
+    display: none;
+    overflow: hidden;
+}
+
+.final-celebration-overlay.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 1s ease-in-out;
+}
+
+.final-celebration-content {
+    width: 98vw;
+    height: 98vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--text-color);
+    text-align: center;
+    position: relative;
+    z-index: 10001;
+}
+
+/* Header da Celebração */
+.celebration-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.3rem;
+    padding: 1rem 2rem;
+    width: 100%;
+    flex-shrink: 0;
+}
+
+.celebration-logo-left {
+    height: 80px;
+    animation: bounce 2s ease-in-out infinite;
+    flex-shrink: 0;
+}
+
+.celebration-logo-right {
+    height: 80px;
+    animation: bounce 2s ease-in-out infinite;
+    flex-shrink: 0;
+}
+
+.celebration-text-center {
+    text-align: center;
+    flex-grow: 1;
+    margin: 0 1.5rem;
+}
+
+.celebration-title {
+    font-size: 1.5rem;
+    font-weight: 900;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0.2rem 0;
+    text-align: center;
+    text-shadow: 0 0 20px rgba(153, 69, 255, 0.5);
+}
+
+.celebration-subtitle {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin: 0;
+    text-align: center;
+    font-weight: 600;
+}
+
+/* Grid Principal - 4 Colunas */
+.celebration-grid {
+    flex-grow: 1;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.12rem;
+    width: 100%;
+    height: 100%;
+    padding: 0.25rem 0.4rem;
+    overflow: hidden;
+    align-content: center;
+    justify-content: center;
+}
+
+.celebration-item {
+    background: var(--glass-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 0.2rem 0.25rem;
+    backdrop-filter: blur(10px);
+    font-size: 0.62rem;
+    line-height: 1.05;
+    transition: all 0.3s ease;
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.celebration-item.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.celebration-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(153, 69, 255, 0.3);
+}
+
+.celebration-position {
+    font-weight: 900;
+    color: var(--secondary-color);
+    font-size: 0.8rem;
+}
+
+.celebration-name {
+    font-weight: 700;
+    color: var(--text-color);
+    margin: 0.05rem 0;
+    font-size: 0.75rem;
+}
+
+.celebration-unit {
+    color: var(--text-secondary);
+    font-size: 0.7rem;
+    font-weight: 500;
+}
+
+/* Footer */
+.celebration-footer {
+    flex-shrink: 0;
+    margin-top: 1rem;
+}
+
+.celebration-date {
+    font-size: 0.9rem;
+    color: var(--secondary-color);
+    font-weight: 600;
+    margin: 0.3rem 0;
+}
+
+.celebration-credits {
+    font-size: 0.65rem;
+    color: rgba(169, 169, 179, 0.5);
+    margin: 0.2rem 0;
+    opacity: 0.7;
+}
+
+.celebration-close-btn {
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    border: none;
+    padding: 0.5rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    margin-top: 0.5rem;
+}
+
+.celebration-close-btn:hover {
+    transform: scale(1.05);
+}
+
+/* Partículas/Confetes */
+.celebration-particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 10000;
+}
+
+/* Animações */
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-10px); }
+    60% { transform: translateY(-5px); }
+}
+
+/* Animação de Ondas Centrais */
+.energy-wave {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border: 2px solid rgba(153, 69, 255, 0.4);
+    border-radius: 50%;
+    animation: energyPulse 4s ease-out infinite;
+}
+
+@keyframes energyPulse {
+    0% {
+        width: 0;
+        height: 0;
+        opacity: 0.8;
+    }
+    50% {
+        width: 400px;
+        height: 400px;
+        margin-left: -200px;
+        margin-top: -200px;
+        opacity: 0.3;
+    }
+    100% {
+        width: 800px;
+        height: 800px;
+        margin-left: -400px;
+        margin-top: -400px;
+        opacity: 0;
+    }
+}
+
 .copyright {
     position: fixed;
     bottom: 5px; /* Mais próximo da borda */
@@ -432,6 +806,123 @@ body {
         padding: 1rem !important;
         border: 1px solid var(--border-color) !important;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
+    }
+}
+
+/* ========== RESPONSIVIDADE PARA TELAS GRANDES ========== */
+
+/* Telas Extra Grandes (TVs, monitores 4K) */
+@media screen and (min-width: 2560px) {
+    .celebration-grid {
+        grid-template-columns: repeat(5, 1fr);
+        gap: 0.4rem;
+        padding: 1rem 1.5rem;
+    }
+
+    .celebration-item {
+        padding: 0.8rem 0.6rem;
+        font-size: 1rem;
+        line-height: 1.3;
+    }
+
+    .celebration-title {
+        font-size: 2.5rem;
+    }
+
+    .celebration-subtitle {
+        font-size: 1.2rem;
+    }
+
+    .celebration-logo-left, .celebration-logo-right {
+        height: 130px;
+    }
+
+    .celebration-text-center {
+        margin: 0 2rem;
+    }
+}
+
+/* Telas Grandes (monitores widescreen, TVs menores) */
+@media screen and (min-width: 1920px) and (max-width: 2559px) {
+    .celebration-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.3rem;
+        padding: 0.8rem 1rem;
+    }
+
+    .celebration-item {
+        padding: 0.6rem 0.5rem;
+        font-size: 0.85rem;
+        line-height: 1.2;
+    }
+
+    .celebration-title {
+        font-size: 2.2rem;
+    }
+
+    .celebration-subtitle {
+        font-size: 1.1rem;
+    }
+
+    .celebration-logo-left, .celebration-logo-right {
+        height: 110px;
+    }
+
+    .celebration-text-center {
+        margin: 0 2rem;
+    }
+}
+
+/* Monitores Full HD */
+@media screen and (min-width: 1366px) and (max-width: 1919px) {
+    .celebration-grid {
+        gap: 0.2rem;
+        padding: 0.6rem 0.8rem;
+    }
+
+    .celebration-item {
+        padding: 0.5rem 0.4rem;
+        font-size: 0.75rem;
+        line-height: 1.15;
+    }
+
+    .celebration-title {
+        font-size: 1.8rem;
+    }
+
+    .celebration-logo-left, .celebration-logo-right {
+        height: 90px;
+    }
+
+    .celebration-text-center {
+        margin: 0 1.5rem;
+    }
+}
+
+/* Tablets e telas médias */
+@media screen and (min-width: 769px) and (max-width: 1365px) {
+    .celebration-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.18rem;
+        padding: 0.5rem 0.7rem;
+    }
+
+    .celebration-item {
+        padding: 0.4rem 0.35rem;
+        font-size: 0.7rem;
+        line-height: 1.1;
+    }
+
+    .celebration-title {
+        font-size: 1.5rem;
+    }
+
+    .celebration-logo-left, .celebration-logo-right {
+        height: 75px;
+    }
+
+    .celebration-text-center {
+        margin: 0 2rem;
     }
 }
 
@@ -534,14 +1025,15 @@ body {
     }
     
     .unit-marker-pin {
-        width: 24px;
-        height: 24px;
-        font-size: 0.7rem;
+        width: 30px;
+        height: 30px;
+        font-size: 0.75rem;
     }
-    
+
     .unit-marker-label {
         font-size: 10px;
-        padding: 1px 4px;
+        padding: 3px 6px;
+        min-width: 60px;
     }
     
     /* Notificações ajustadas para mobile */
@@ -571,6 +1063,66 @@ body {
     
     .floating-status-banner.show {
         top: 70px;
+    }
+
+    /* Ajustes da tela de celebração para mobile */
+    .celebration-title {
+        font-size: 1.4rem;
+        margin: 0.2rem 3rem;
+    }
+
+    .celebration-subtitle {
+        font-size: 0.8rem;
+    }
+
+    .celebration-logo-left, .celebration-logo-right {
+        height: 45px;
+    }
+
+    .celebration-text-center {
+        margin: 0 0.8rem;
+    }
+
+    .celebration-header {
+        padding: 0.5rem 1rem;
+    }
+
+    .celebration-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.15rem;
+        padding: 0.3rem 0;
+    }
+
+    .celebration-item {
+        padding: 0.25rem 0.3rem;
+        font-size: 0.65rem;
+        line-height: 1.1;
+    }
+
+    .celebration-position {
+        font-size: 0.7rem;
+    }
+
+    .celebration-name {
+        margin: 0.03rem 0;
+        font-size: 0.65rem;
+    }
+
+    .celebration-unit {
+        font-size: 0.6rem;
+    }
+
+    .celebration-footer {
+        margin-top: 0.5rem;
+    }
+
+    .celebration-date {
+        font-size: 0.8rem;
+    }
+
+    .celebration-credits {
+        font-size: 0.6rem;
+        opacity: 0.6;
     }
 }
 
@@ -657,9 +1209,15 @@ body {
     }
     
     .unit-marker-pin {
-        width: 20px;
-        height: 20px;
-        font-size: 0.6rem;
+        width: 26px;
+        height: 26px;
+        font-size: 0.65rem;
+    }
+
+    .unit-marker-label {
+        font-size: 9px;
+        padding: 2px 5px;
+        min-width: 50px;
     }
     
     /* Copyright ajustado */

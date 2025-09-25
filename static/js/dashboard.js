@@ -63,7 +63,25 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateStatus(data) {
         const { current_turn, user_classification, username, users } = data;
 
+        // Bloquear apenas usuário consulta (god pode ver celebração)
         if (username === 'consulta') return;
+
+        // Se current_turn > 43, significa que todos os usuários válidos já escolheram
+        if (current_turn > 43) {
+            // Verificar se já mostrou a celebração para evitar repetição
+            if (!window.celebrationShown) {
+                window.celebrationShown = true;
+
+                // Aguardar um pouco para garantir que os dados foram atualizados
+                setTimeout(() => {
+                    showFinalCelebration(users, data.escolhas_feitas || {});
+                }, 1000);
+            }
+            return;
+        }
+
+        // Status banner apenas para usuários não-god
+        if (username === 'god') return;
 
         if (!statusBanner) {
             statusBanner = document.createElement('div');
@@ -97,7 +115,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateUserList(data) {
         const { current_turn, users } = data;
         userList.innerHTML = '';
-        users.forEach((user, index) => {
+
+        // Filtrar apenas usuários com classification <= 43 (até MEIRELLES)
+        const filteredUsers = users.filter(user => user.classification <= 43);
+
+        filteredUsers.forEach((user, index) => {
             const li = document.createElement('li');
             li.className = 'list-group-item';
             if (user.classification === current_turn) {
@@ -111,7 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateChoiceLog(data) {
         const { escolhas_feitas, users } = data;
         const choiceCount = Object.keys(escolhas_feitas).length;
-        
+
         const newChoices = choiceCount > lastChoiceCount;
 
         if (newChoices) {
@@ -129,18 +151,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         for (const [classif, choiceData] of sortedChoices) {
             const user = users.find(u => u.classification == classif);
+
+            // Filtrar apenas usuários com classification <= 43
+            if (!user || user.classification > 43) continue;
+
             const tr = document.createElement('tr');
 
             // Compatibilidade com formato antigo e novo
             const unidadeNome = typeof choiceData === 'string' ? choiceData : choiceData.unidade_nome;
-            const segundaOpcao = typeof choiceData === 'object' ? choiceData.segunda_opcao : null;
-
-            const segundaOpcaoDisplay = segundaOpcao ?
-                `<br><small style="color: #14f195; font-style: italic;">2ª: ${segundaOpcao}</small>` : '';
 
             tr.innerHTML = `
                 <td>${user.username}</td>
-                <td>${unidadeNome}${segundaOpcaoDisplay}</td>
+                <td>${unidadeNome}</td>
             `;
             choiceLogBody.appendChild(tr);
         }
@@ -218,14 +240,45 @@ document.addEventListener('DOMContentLoaded', () => {
 
         unidadesInCommand.forEach(unidade => {
             const { id, nome, cidade, lat, lon, vagas } = unidade;
-            
+
+            // Ocultar unidades sem vagas para evitar poluição visual
+            if (vagas === 0) {
+                return;
+            }
+
             // Correção: Verificar a vez do usuário diretamente pelos dados da API
             const isTurn = window.user_classification === window.current_turn;
+
+            // Determinar classe baseada no número de vagas
+            let vagasClass = '';
+            if (vagas === 1) {
+                vagasClass = 'poucas-vagas';
+            } else {
+                vagasClass = 'muitas-vagas';
+            }
+
+            // Truncar nome se for muito longo
+            const nomeDisplay = nome.length > 25 ? nome.substring(0, 22) + '...' : nome;
 
             const marker = L.marker([lat, lon], {
                 icon: L.divIcon({
                     className: 'unit-marker',
-                    html: `<div><div class="unit-marker-pin"><div class="unit-marker-pin-content">${vagas}</div></div><div class="unit-marker-label">${nome}</div></div>`,
+                    html: `
+                        <div class="unit-marker-container">
+                            <div class="unit-marker-pin ${vagasClass}">
+                                <div class="unit-marker-pin-content">${vagas}</div>
+                            </div>
+                            <div class="unit-marker-label" title="${nome}">
+                                ${nomeDisplay}
+                                <div class="unit-marker-tooltip">
+                                    ${nome} - ${cidade}<br>
+                                    Vagas: ${vagas}
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                    iconSize: [140, 70],
+                    iconAnchor: [70, 55]
                 }),
                 pane: 'unitMarkerPane'
             });
@@ -255,6 +308,11 @@ document.addEventListener('DOMContentLoaded', () => {
             notification.classList.add('show');
         }, 100);
 
+        // Voltar para vista ampla após 1.5 segundos
+        setTimeout(() => {
+            showCommandView(true);
+        }, 1500);
+
         setTimeout(() => {
             notification.classList.remove('show');
             setTimeout(() => {
@@ -272,13 +330,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const modal = document.getElementById('choice-modal');
         const firstChoiceDisplay = document.getElementById('first-choice-display');
-        const segundaOpcaoInput = document.getElementById('segunda-opcao-input');
 
         firstChoiceDisplay.textContent = `${nome} - ${cidade}`;
-        segundaOpcaoInput.value = '';
 
         modal.style.display = 'block';
-        segundaOpcaoInput.focus();
     }
 
     function closeChoiceModal() {
@@ -290,8 +345,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function confirmChoice() {
         if (!currentChoiceData) return;
 
-        const segundaOpcao = document.getElementById('segunda-opcao-input').value.trim();
-        chooseLocation(currentChoiceData.unidadeId, segundaOpcao);
+        chooseLocation(currentChoiceData.unidadeId);
         closeChoiceModal();
     }
 
@@ -310,18 +364,83 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Funções da Tela de Celebração Final
+    function showFinalCelebration(users, escolhas) {
+        const overlay = document.getElementById('final-celebration');
+        const grid = document.getElementById('celebration-grid');
+        const dateElement = document.getElementById('celebration-date');
+
+        // Filtrar e ordenar usuários válidos com suas escolhas
+        const validUsers = users.filter(user => user.classification <= 43)
+                                 .sort((a, b) => a.classification - b.classification);
+
+        // Limpar grid
+        grid.innerHTML = '';
+
+        // Criar itens da celebração
+        validUsers.forEach((user, index) => {
+            const escolha = escolhas[user.classification];
+            const unidadeNome = typeof escolha === 'string' ? escolha :
+                               (escolha ? escolha.unidade_nome : 'Não escolhida');
+
+            const item = document.createElement('div');
+            item.className = 'celebration-item';
+            item.innerHTML = `
+                <div class="celebration-position">${index + 1}º</div>
+                <div class="celebration-name">${user.username}</div>
+                <div class="celebration-unit">${unidadeNome}</div>
+            `;
+
+            grid.appendChild(item);
+
+            // Animação sequencial
+            setTimeout(() => {
+                item.classList.add('show');
+            }, index * 50);
+        });
+
+        // Data e hora atual
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('pt-BR') + ' - ' +
+                       now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        dateElement.textContent = `Finalizado em: ${dateStr}`;
+
+        // Mostrar overlay
+        overlay.classList.add('show');
+
+        // Criar efeito de confetes
+        createConfetti();
+    }
+
+    function closeFinalCelebration() {
+        const overlay = document.getElementById('final-celebration');
+        overlay.classList.remove('show');
+    }
+
+    function createConfetti() {
+        const container = document.getElementById('celebration-particles');
+        container.innerHTML = '';
+
+        // Apenas ondas de energia centrais
+        for (let i = 0; i < 3; i++) {
+            const wave = document.createElement('div');
+            wave.className = 'energy-wave';
+            wave.style.animationDelay = (i * 1.5) + 's';
+            container.appendChild(wave);
+        }
+    }
+
+
     // Tornar funções globais para uso no HTML
     window.showChoiceModal = showChoiceModal;
     window.closeChoiceModal = closeChoiceModal;
     window.confirmChoice = confirmChoice;
+    window.closeFinalCelebration = closeFinalCelebration;
 
     // Comunicação com o servidor
-    async function chooseLocation(unidadeId, segundaOpcao = '') {
+    async function chooseLocation(unidadeId) {
         try {
             const requestBody = { unidade_id: unidadeId };
-            if (segundaOpcao) {
-                requestBody.segunda_opcao = segundaOpcao;
-            }
 
             const response = await fetch('/api/choose', {
                 method: 'POST',
@@ -347,6 +466,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
             window.current_turn = data.current_turn;
             window.user_classification = data.user_classification;
+
+            // Passar dados completos para updateStatus para detecção de finalização
             updateStatus(data);
             updateUserList(data);
             updateMap(data);

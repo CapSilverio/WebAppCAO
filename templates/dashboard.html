@@ -16,7 +16,21 @@
 <div class="main-container">
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">Dashboard de Vagas</a>
+            <!-- Menu Hambúrguer à esquerda -->
+            {% if username != 'consulta' %}
+            <div class="dropdown">
+                <button class="btn btn-outline-light dropdown-toggle hamburger-menu" type="button" id="hamburgerMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                    <span class="hamburger-icon">☰</span> Menu
+                </button>
+                <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="hamburgerMenu">
+                    <li><a class="dropdown-item" href="{{ url_for('dashboard') }}">📍 Escolha de Vagas</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('priorities') }}">⭐ Definir Prioridades</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('eletivas_page') }}">📚 Eletivas</a></li>
+                </ul>
+            </div>
+            {% endif %}
+
+            <a class="navbar-brand mx-auto" href="#">Dashboard de Escolhas de Unidade</a>
             
             <!-- Botão hamburger para mobile -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
@@ -25,21 +39,8 @@
             </button>
             
             <div class="collapse navbar-collapse" id="navbarNav">
-                {% if username != 'consulta' %}
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="{{ url_for('dashboard') }}">Escolha de Vagas</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('priorities') }}">Definir Prioridades</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('eletivas_page') }}">Eletivas</a>
-                    </li>
-                </ul>
-                {% endif %}
-                <div class="d-flex align-items-center">
-                    <span class="navbar-text me-3">Bem-vindo, {{ username }}!</span>
+                <div class="d-flex align-items-center ms-auto">
+                    <span class="navbar-text me-3">Bem-vindo, {% if username == 'god' %}Cmt C Eng{% else %}{{ username }}{% endif %}!</span>
                     <a href="{{ url_for('logout') }}" class="btn btn-outline-secondary">Logout</a>
                 </div>
             </div>
@@ -68,7 +69,7 @@
                             <thead>
                                 <tr>
                                     <th>Militar</th>
-                                    <th>OM Escolhida / 2ª Opção</th>
+                                    <th>OM Escolhida</th>
                                 </tr>
                             </thead>
                             <tbody id="choice-log-body"></tbody>
@@ -96,20 +97,43 @@
             <h3>Confirmar Escolha de Unidade</h3>
 
             <div class="choice-option">
-                <label>1ª Opção:</label>
+                <label>Unidade Selecionada:</label>
                 <div id="first-choice-display" class="first-choice-display"></div>
             </div>
 
-            <div class="choice-option">
-                <label>2ª Opção (opcional):</label>
-                <input type="text" id="segunda-opcao-input" placeholder="Ex: 3º BECmb - Brasília-DF" maxlength="100">
-            </div>
 
             <div class="choice-modal-buttons">
                 <button type="button" class="choice-modal-btn cancel" onclick="closeChoiceModal()">Cancelar</button>
                 <button type="button" class="choice-modal-btn confirm" onclick="confirmChoice()">Confirmar Escolha</button>
             </div>
         </div>
+    </div>
+
+    <!-- Tela Final de Celebração -->
+    <div id="final-celebration" class="final-celebration-overlay">
+        <div class="final-celebration-content">
+            <div class="celebration-header">
+                <img src="{{ url_for('static', filename='images/logoesaonormal.png') }}" alt="ESAO Logo" class="celebration-logo-left">
+                <div class="celebration-text-center">
+                    <h1 class="celebration-title">🎓 PARABÉNS CAO ENG 2025! 🎓</h1>
+                    <p class="celebration-subtitle">Processo de Escolha de Unidades Finalizado com Sucesso</p>
+                </div>
+                <img src="{{ url_for('static', filename='images/logoceng.png') }}" alt="CEng Logo" class="celebration-logo-right">
+            </div>
+
+            <div class="celebration-grid" id="celebration-grid">
+                <!-- Será preenchido via JavaScript -->
+            </div>
+
+            <div class="celebration-footer">
+                <p class="celebration-date" id="celebration-date"></p>
+                <p class="celebration-credits">Sistema desenvolvido por Cap Silvério - CEng ESAO</p>
+                <button class="celebration-close-btn" onclick="closeFinalCelebration()">Fechar</button>
+            </div>
+        </div>
+
+        <!-- Efeitos de partículas/confetes -->
+        <div class="celebration-particles" id="celebration-particles"></div>
     </div>
 
 </body>

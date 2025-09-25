@@ -117,6 +117,8 @@
     height: calc(100vh - 120px);
     justify-content: center;
     align-items: start;
+    max-width: 100%;
+    margin: 0 auto;
 }
 
 .grid-item {
@@ -261,9 +263,171 @@
     overflow: visible !important;
 }
 
+/* ========== MENU HAMBÚRGUER ========== */
+/* Layout da navbar com hambúrguer à esquerda e título centralizado */
+.container-fluid {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+}
+
+.navbar-brand {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-weight: 600;
+}
+
+/* Container do dropdown com z-index alto */
+.dropdown {
+    z-index: 9999;
+    position: relative;
+}
+
+/* Navbar com z-index alto */
+.navbar {
+    z-index: 9999 !important;
+    position: relative;
+}
+
+.hamburger-menu {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+}
+
+.hamburger-menu:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+.hamburger-menu:focus {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: #fff;
+    box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.1);
+}
+
+.hamburger-icon {
+    font-size: 1.1rem;
+    margin-right: 0.5rem;
+}
+
+.dropdown-menu-dark {
+    background: rgba(0, 0, 0, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 0.5rem 0;
+    margin-top: 0.5rem;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    z-index: 9998 !important;
+    position: absolute;
+    top: 100%;
+    left: 0;
+}
+
+.dropdown-menu-dark .dropdown-item {
+    color: #e5e5e5;
+    padding: 0.7rem 1.2rem;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    border: none;
+}
+
+.dropdown-menu-dark .dropdown-item:hover {
+    background: rgba(20, 241, 149, 0.1);
+    color: #14F195;
+    transform: translateX(5px);
+}
+
+.dropdown-menu-dark .dropdown-item:focus {
+    background: rgba(20, 241, 149, 0.1);
+    color: #14F195;
+}
+
 /* ========== DASHBOARD RESPONSIVE DESIGN ========== */
 
 /* Tablet - iPad Portrait */
+/* Telas Extra Grandes (TVs, monitores 4K) */
+@media screen and (min-width: 2560px) {
+    .dashboard-grid {
+        grid-template-columns: 1.2fr 5fr 1.8fr;
+        grid-gap: 2rem;
+        max-width: 95%;
+        height: calc(100vh - 140px);
+    }
+
+    #user-list-container, #choice-log-container {
+        max-height: calc(100vh - 200px);
+        font-size: 1.1rem;
+    }
+
+    .card-title {
+        font-size: 1.4rem;
+    }
+
+    .content-container {
+        padding: 2rem;
+    }
+
+    /* Aumentar fonte das listas para telas muito grandes */
+    #user-list .list-group-item,
+    #choice-log-body td {
+        font-size: 1.1rem;
+        padding: 0.8rem;
+    }
+}
+
+/* Telas Grandes (monitores widescreen, TVs menores) */
+@media screen and (min-width: 1920px) and (max-width: 2559px) {
+    .dashboard-grid {
+        grid-template-columns: 1.1fr 5.2fr 1.7fr;
+        grid-gap: 1.8rem;
+        max-width: 96%;
+        height: calc(100vh - 130px);
+    }
+
+    #user-list-container, #choice-log-container {
+        max-height: calc(100vh - 180px);
+        font-size: 1.05rem;
+    }
+
+    .content-container {
+        padding: 1.5rem;
+    }
+
+    .card-title {
+        font-size: 1.3rem;
+    }
+}
+
+/* Monitores Full HD */
+@media screen and (min-width: 1366px) and (max-width: 1919px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr 5.5fr 1.6fr;
+        grid-gap: 1.5rem;
+        max-width: 98%;
+        height: calc(100vh - 125px);
+    }
+
+    #user-list-container, #choice-log-container {
+        max-height: calc(100vh - 170px);
+    }
+
+    .content-container {
+        padding: 1.2rem;
+    }
+}
+
 @media screen and (max-width: 1024px) {
     .dashboard-grid {
         grid-template-columns: 1fr;
@@ -278,6 +442,31 @@
 
 /* Mobile Large */
 @media screen and (max-width: 768px) {
+    /* Menu hambúrguer em mobile */
+    .hamburger-menu {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.8rem;
+    }
+
+    .dropdown-menu-dark {
+        min-width: 200px;
+        font-size: 0.85rem;
+    }
+
+    /* Layout mobile da navbar */
+    .container-fluid {
+        flex-wrap: wrap;
+    }
+
+    .navbar-brand {
+        position: static;
+        transform: none;
+        order: 2;
+        flex: 1;
+        text-align: center;
+        font-size: 0.9rem;
+    }
+
     .dashboard-grid {
         display: flex;
         flex-direction: column;
@@ -347,6 +536,19 @@
 }
 
 /* Mobile Small */
+/* Telas muito pequenas - esconder título para evitar sobreposição */
+@media screen and (max-width: 500px) {
+    .navbar-brand {
+        display: none;
+    }
+
+    /* Ajustar spacing quando título está escondido */
+    .container-fluid {
+        justify-content: space-between;
+        gap: 1rem;
+    }
+}
+
 @media screen and (max-width: 480px) {
     #user-list-container {
         max-height: 250px;
