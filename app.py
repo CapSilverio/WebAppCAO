@@ -39,7 +39,7 @@ def get_initial_unidades():
         # CMP
         {'id': 14, 'nome': '2º BFv', 'cidade': 'Araguari-MG', 'lat': -18.6481, 'lon': -48.1879, 'vagas': 0},
         {'id': 30, 'nome': '23ª Cia E Cmb Mec', 'cidade': 'Ipameri-GO', 'lat': -17.7219, 'lon': -48.1597, 'vagas': 0},
-        {'id': 39, 'nome': '1º B O Psc', 'cidade': 'Brasília-DF', 'lat': -15.7900, 'lon': -47.8900, 'vagas':1},
+        {'id': 39, 'nome': '1º B Op Psc', 'cidade': 'Brasília-DF', 'lat': -15.7900, 'lon': -47.8900, 'vagas':1},
         # CMSE
         {'id': 17, 'nome': '2º BE Cmb', 'cidade': 'Pindamonhangaba-SP', 'lat': -22.9243, 'lon': -45.4666, 'vagas': 0},
         {'id': 18, 'nome': '11ª Cia E Cmb L', 'cidade': 'Pindamonhangaba-SP', 'lat': -22.9418, 'lon': -45.4551, 'vagas': 0},

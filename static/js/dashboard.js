@@ -448,33 +448,73 @@ document.addEventListener('DOMContentLoaded', () => {
         const grid = document.getElementById('celebration-grid');
         const dateElement = document.getElementById('celebration-date');
 
-        // Filtrar e ordenar usuários válidos com suas escolhas
-        const validUsers = users.filter(user => user.classification <= 43)
-                                 .sort((a, b) => a.classification - b.classification);
+        // Filtrar usuários válidos com suas escolhas
+        const validUsers = users.filter(user => user.classification <= 43);
+
+        // Agrupar por unidade
+        const groupedByUnit = {};
+        validUsers.forEach(user => {
+            const escolha = escolhas[user.classification];
+            const unidadeNome = typeof escolha === 'string' ? escolha :
+                               (escolha ? escolha.unidade_nome : 'Não escolhida');
+            const unidadeId = typeof escolha === 'string' ? null :
+                             (escolha ? escolha.unidade_id : null);
+
+            if (!groupedByUnit[unidadeNome]) {
+                groupedByUnit[unidadeNome] = {
+                    unidadeId: unidadeId,
+                    militares: []
+                };
+            }
+            groupedByUnit[unidadeNome].militares.push(user);
+        });
 
         // Limpar grid
         grid.innerHTML = '';
 
-        // Criar itens da celebração
-        validUsers.forEach((user, index) => {
-            const escolha = escolhas[user.classification];
-            const unidadeNome = typeof escolha === 'string' ? escolha :
-                               (escolha ? escolha.unidade_nome : 'Não escolhida');
+        // Criar cards por unidade - ordenar alfabeticamente
+        let animationDelay = 0;
+        const sortedUnits = Object.entries(groupedByUnit).sort(([a], [b]) => a.localeCompare(b));
+        sortedUnits.forEach(([unidadeNome, data]) => {
+            // Ordenar militares por classificação
+            data.militares.sort((a, b) => a.classification - b.classification);
 
-            const item = document.createElement('div');
-            item.className = 'celebration-item';
-            item.innerHTML = `
-                <div class="celebration-position">${index + 1}º</div>
-                <div class="celebration-name">${user.username}</div>
-                <div class="celebration-unit">${unidadeNome}</div>
+            // Obter logo da unidade
+            const logoPath = getUnitLogo(data.unidadeId);
+            const logoHtml = logoPath ?
+                `<img src="${logoPath}" alt="Logo ${unidadeNome}" class="unit-celebration-logo">` :
+                '<div class="unit-placeholder-logo">🎖️</div>';
+
+            const unitCard = document.createElement('div');
+            unitCard.className = 'celebration-unit-card';
+            unitCard.innerHTML = `
+                ${logoHtml}
+                <div class="celebration-unit-info">
+                    <h3>${unidadeNome}</h3>
+                    <span class="celebration-unit-count">${data.militares.length} militar${data.militares.length > 1 ? 'es' : ''}</span>
+                </div>
+                <div class="celebration-unit-members" style="display: none;">
+                    ${data.militares.map(militar =>
+                        `<div class="celebration-member">
+                            <span class="member-classification">${militar.classification}º</span>
+                            ${militar.username}
+                        </div>`
+                    ).join('')}
+                </div>
             `;
 
-            grid.appendChild(item);
+            // Adicionar evento de clique para abrir modal
+            unitCard.addEventListener('click', () => {
+                showUnitDetail(unidadeNome, data.unidadeId, data.militares, logoPath);
+            });
+
+            grid.appendChild(unitCard);
 
             // Animação sequencial
             setTimeout(() => {
-                item.classList.add('show');
-            }, index * 50);
+                unitCard.classList.add('show');
+            }, animationDelay);
+            animationDelay += 200;
         });
 
         // Data e hora atual
@@ -494,6 +534,68 @@ document.addEventListener('DOMContentLoaded', () => {
         const overlay = document.getElementById('final-celebration');
         overlay.classList.remove('show');
     }
+
+    // Função para mostrar detalhes da unidade
+    function showUnitDetail(unidadeNome, unidadeId, militares, logoPath) {
+        // Criar modal se não existir
+        let modal = document.getElementById('unit-detail-modal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'unit-detail-modal';
+            modal.className = 'unit-detail-modal';
+            document.body.appendChild(modal);
+        }
+
+        // Ordenar militares por classificação
+        const militaresOrdenados = militares.sort((a, b) => a.classification - b.classification);
+
+        // Logo HTML
+        const logoHtml = logoPath ?
+            `<img src="${logoPath}" alt="Logo ${unidadeNome}" class="unit-detail-logo">` :
+            '<div class="unit-placeholder-logo" style="width: 150px; height: 150px; font-size: 4rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto; background: rgba(20, 241, 149, 0.1); border-radius: 15px;">🎖️</div>';
+
+        modal.innerHTML = `
+            <div class="unit-detail-content">
+                <button class="unit-detail-close" onclick="closeUnitDetail()">&times;</button>
+
+                ${logoHtml}
+
+                <h2 class="unit-detail-title">${unidadeNome}</h2>
+                <p class="unit-detail-subtitle">${militaresOrdenados.length} militar${militaresOrdenados.length > 1 ? 'es' : ''} escolheu${militaresOrdenados.length > 1 ? 'ram' : ''} esta unidade</p>
+
+                <div class="unit-detail-members">
+                    ${militaresOrdenados.map(militar => `
+                        <div class="unit-detail-member">
+                            <div class="member-classification">${militar.classification}º Colocado</div>
+                            <div class="member-name">${militar.username}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+
+        // Mostrar modal com animação
+        modal.classList.add('show');
+
+        // Fechar modal ao clicar no fundo
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeUnitDetail();
+            }
+        });
+    }
+
+    // Função para fechar modal da unidade
+    function closeUnitDetail() {
+        const modal = document.getElementById('unit-detail-modal');
+        if (modal) {
+            modal.classList.remove('show');
+        }
+    }
+
+    // Tornar funções globais
+    window.showUnitDetail = showUnitDetail;
+    window.closeUnitDetail = closeUnitDetail;
 
     function createConfetti() {
         const container = document.getElementById('celebration-particles');

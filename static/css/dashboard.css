@@ -679,18 +679,619 @@
         grid-gap: 0.8rem;
         height: calc(100vh - 80px);
     }
-    
+
     #user-list-container, #choice-log-container {
         max-height: calc(100vh - 150px);
     }
-    
+
     /* Navbar mais compacta em landscape */
     .navbar {
         padding: 0.4rem 0.8rem;
     }
-    
+
     .navbar-collapse {
         margin-top: 5px;
         padding: 0.5rem;
+    }
+}
+
+/* ========== TELA DE CELEBRAÇÃO FINAL - NOVA ESTRUTURA POR UNIDADE ========== */
+
+.final-celebration-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+    z-index: 10000;
+    display: none;
+    overflow-y: auto;
+    padding: 0.5rem;
+}
+
+.final-celebration-overlay.show {
+    display: block;
+}
+
+.final-celebration-content {
+    max-width: 100vw;
+    margin: 0;
+    color: white;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.celebration-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+    text-align: center;
+    position: relative;
+    flex-shrink: 0;
+    padding: 0.5rem 0;
+}
+
+.celebration-logo-left,
+.celebration-logo-right {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+    position: absolute;
+}
+
+.celebration-logo-left {
+    left: 0;
+}
+
+.celebration-logo-right {
+    right: 0;
+}
+
+.celebration-text-center {
+    flex: 1;
+    max-width: 600px;
+}
+
+.celebration-title {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #14f195;
+    margin-bottom: 0.5rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    animation: celebrationGlow 2s ease-in-out infinite alternate;
+}
+
+.celebration-subtitle {
+    font-size: 1rem;
+    color: #e5e5e5;
+    margin-bottom: 0;
+}
+
+@keyframes celebrationGlow {
+    from { text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5), 0 0 20px rgba(20, 241, 149, 0.3); }
+    to { text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5), 0 0 30px rgba(20, 241, 149, 0.6); }
+}
+
+/* Grid de unidades - maximizado para ocupar quase toda a tela */
+.celebration-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+    padding: 1rem 0.5rem 0.5rem 0.5rem; /* Padding superior maior para evitar corte */
+    flex: 1;
+    overflow-y: auto;
+    /* Ocultar barra de rolagem */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+    /* Garantir que o conteúdo não seja cortado */
+    box-sizing: border-box;
+}
+
+/* Ocultar barra de rolagem no Chrome/Safari */
+.celebration-grid::-webkit-scrollbar {
+    display: none;
+}
+
+/* Cada unidade - container discreto clicável */
+.celebration-unit-card {
+    background: rgba(26, 26, 46, 0.3);
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: center;
+    border: 1px solid rgba(20, 241, 149, 0.1);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    animation: cardSlideIn 0.6s ease-out;
+    /* Garantir que o card seja totalmente visível */
+    min-height: 160px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.celebration-unit-card:hover {
+    background: rgba(26, 26, 46, 0.5);
+    border-color: rgba(20, 241, 149, 0.3);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes cardSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Logo da unidade - maior */
+.unit-celebration-logo {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    margin: 0 auto 0.8rem auto;
+    display: block;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.celebration-unit-card:hover .unit-celebration-logo {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(20, 241, 149, 0.3);
+}
+
+/* Nome da unidade */
+.celebration-unit-info h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #14f195;
+    margin: 0 0 0.3rem 0;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    flex-shrink: 0;
+}
+
+/* Contador de militares */
+.celebration-unit-count {
+    font-size: 0.85rem;
+    color: #888;
+    font-weight: 500;
+    flex-shrink: 0;
+}
+
+/* Ocultar lista de membros no grid principal */
+.celebration-unit-members {
+    display: none;
+}
+
+/* ========== MODAL DETALHADO DA UNIDADE ========== */
+.unit-detail-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+    z-index: 20000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.unit-detail-modal.show {
+    display: flex;
+}
+
+.unit-detail-content {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border-radius: 20px;
+    padding: 2rem;
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    border: 1px solid rgba(20, 241, 149, 0.3);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    position: relative;
+    animation: modalSlideIn 0.4s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Botão fechar */
+.unit-detail-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #fff;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+}
+
+.unit-detail-close:hover {
+    background: rgba(255, 75, 75, 0.3);
+    color: #ff4b4b;
+    transform: rotate(90deg);
+}
+
+/* Logo grande no modal */
+.unit-detail-logo {
+    width: 150px;
+    height: 150px;
+    object-fit: contain;
+    border-radius: 15px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+    margin: 0 auto 1.5rem auto;
+    display: block;
+}
+
+/* Título da unidade no modal */
+.unit-detail-title {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #14f195;
+    margin-bottom: 0.5rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.unit-detail-subtitle {
+    font-size: 1rem;
+    color: #888;
+    margin-bottom: 2rem;
+}
+
+/* Lista de militares no modal */
+.unit-detail-members {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.8rem;
+    text-align: left;
+}
+
+.unit-detail-member {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1rem;
+    border-radius: 10px;
+    border-left: 4px solid #14f195;
+    transition: all 0.2s ease;
+}
+
+.unit-detail-member:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateX(5px);
+}
+
+.unit-detail-member .member-classification {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #14f195;
+    margin-bottom: 0.3rem;
+}
+
+.unit-detail-member .member-name {
+    font-size: 0.9rem;
+    color: #e5e5e5;
+}
+
+/* Scroll customizado para modal */
+.unit-detail-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.unit-detail-content::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+.unit-detail-content::-webkit-scrollbar-thumb {
+    background: rgba(20, 241, 149, 0.5);
+    border-radius: 3px;
+}
+
+.unit-detail-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(20, 241, 149, 0.7);
+}
+
+/* Footer da celebração - compacto */
+.celebration-footer {
+    text-align: center;
+    margin-top: 0.5rem;
+    padding: 1rem 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+}
+
+.celebration-date {
+    font-size: 0.9rem;
+    color: #14f195;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.celebration-credits {
+    font-size: 0.75rem;
+    color: #888;
+    margin-bottom: 1rem;
+}
+
+.celebration-close-btn {
+    background: linear-gradient(135deg, #14f195, #11c471);
+    color: #000;
+    border: none;
+    padding: 0.8rem 2rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(20, 241, 149, 0.3);
+}
+
+.celebration-close-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(20, 241, 149, 0.4);
+}
+
+/* Efeitos de partículas */
+.celebration-particles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+/* Responsividade para tela de celebração e modal */
+@media screen and (max-width: 1024px) {
+    .final-celebration-overlay {
+        padding: 0.3rem;
+    }
+
+    .celebration-header {
+        margin-bottom: 0.8rem;
+    }
+
+    .celebration-title {
+        font-size: 1.5rem;
+    }
+
+    .celebration-subtitle {
+        font-size: 0.9rem;
+    }
+
+    .celebration-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 0.8rem;
+        padding: 0.8rem 0.3rem 0.3rem 0.3rem;
+    }
+
+    .celebration-unit-card {
+        min-height: 140px;
+        padding: 0.8rem;
+    }
+
+    .unit-celebration-logo {
+        width: 80px;
+        height: 80px;
+    }
+
+    .celebration-unit-info h3 {
+        font-size: 0.9rem;
+    }
+
+    /* Modal responsivo */
+    .unit-detail-content {
+        max-width: 500px;
+        padding: 1.5rem;
+    }
+
+    .unit-detail-logo {
+        width: 120px;
+        height: 120px;
+    }
+
+    .unit-detail-title {
+        font-size: 1.5rem;
+    }
+
+    .unit-detail-members {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .final-celebration-overlay {
+        padding: 0.2rem;
+    }
+
+    .celebration-header {
+        flex-direction: column;
+        margin-bottom: 0.8rem;
+    }
+
+    .celebration-logo-left,
+    .celebration-logo-right {
+        position: static;
+        margin: 0 0.3rem;
+        width: 40px;
+        height: 40px;
+    }
+
+    .celebration-title {
+        font-size: 1.3rem;
+        text-align: center;
+    }
+
+    .celebration-subtitle {
+        font-size: 0.8rem;
+    }
+
+    .celebration-grid {
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+        gap: 0.6rem;
+        padding: 0.8rem 0.2rem 0.2rem 0.2rem;
+    }
+
+    .celebration-unit-card {
+        min-height: 120px;
+        padding: 0.6rem;
+    }
+
+    .unit-celebration-logo {
+        width: 70px;
+        height: 70px;
+    }
+
+    .celebration-unit-info h3 {
+        font-size: 0.8rem;
+    }
+
+    .celebration-unit-count {
+        font-size: 0.7rem;
+    }
+
+    .celebration-footer {
+        padding: 0.5rem 0;
+    }
+
+    /* Modal mobile */
+    .unit-detail-modal {
+        padding: 1rem;
+    }
+
+    .unit-detail-content {
+        max-width: 100%;
+        padding: 1.2rem;
+    }
+
+    .unit-detail-logo {
+        width: 100px;
+        height: 100px;
+    }
+
+    .unit-detail-title {
+        font-size: 1.3rem;
+    }
+
+    .unit-detail-subtitle {
+        font-size: 0.9rem;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .final-celebration-overlay {
+        padding: 0.1rem;
+    }
+
+    .celebration-title {
+        font-size: 1.2rem;
+    }
+
+    .celebration-subtitle {
+        font-size: 0.75rem;
+    }
+
+    .celebration-grid {
+        grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+        gap: 0.4rem;
+        padding: 0.6rem 0.1rem 0.1rem 0.1rem;
+    }
+
+    .celebration-unit-card {
+        min-height: 100px;
+        padding: 0.5rem;
+    }
+
+    .unit-celebration-logo {
+        width: 55px;
+        height: 55px;
+    }
+
+    .celebration-unit-info h3 {
+        font-size: 0.7rem;
+    }
+
+    .celebration-unit-count {
+        font-size: 0.65rem;
+    }
+
+    .celebration-footer {
+        padding: 0.3rem 0;
+    }
+
+    .celebration-close-btn {
+        padding: 0.6rem 1.5rem;
+        font-size: 0.8rem;
+    }
+
+    .celebration-date {
+        font-size: 0.8rem;
+    }
+
+    .celebration-credits {
+        font-size: 0.7rem;
+    }
+
+    /* Modal mobile pequeno */
+    .unit-detail-modal {
+        padding: 0.5rem;
+    }
+
+    .unit-detail-content {
+        padding: 1rem;
+    }
+
+    .unit-detail-logo {
+        width: 80px;
+        height: 80px;
+    }
+
+    .unit-detail-title {
+        font-size: 1.1rem;
+    }
+
+    .unit-detail-subtitle {
+        font-size: 0.8rem;
+    }
+
+    .unit-detail-member {
+        padding: 0.8rem;
+    }
+
+    .unit-detail-member .member-classification {
+        font-size: 0.9rem;
+    }
+
+    .unit-detail-member .member-name {
+        font-size: 0.8rem;
     }
 }
